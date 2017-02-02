@@ -306,7 +306,32 @@
             }
           ]
         }
-      }
+      },
+      "resources": [
+        {
+          "apiVersion": "2016-03-30",
+          "type": "extensions",
+          "name": "Installation",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat(variables('vmNameExecution'), copyindex())]"
+          ],
+          "properties": {
+            "publisher": "Microsoft.Azure.Extensions",
+            "type": "CustomScript",
+            "typeHandlerVersion": "2.0",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "fileUris": [
+                "[concat(parameters('_artifactsLocation'), '/azuredeploy.sh', parameters('_artifactsLocationSasToken'))]"
+              ]
+            },
+            "protectedSettings": {
+              "commandToExecute": "[variables('installationCLI')]"
+            }
+          }
+        }
+      ]
     }
 
   ],

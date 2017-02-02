@@ -54,12 +54,11 @@
     "vmNameMaster": "master",
     "vmNameExecution": "exec-",
     "ubuntuOSVersion": "14.04.4-LTS",
-    "storageAccountName": "sasmaster",
+    "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'sasmaster2')]",
     "location": "[resourceGroup().location]",
     "dnsName": "[concat('slurm-', uniqueString(resourceGroup().id))]",
     "imagePublisher": "Canonical",
     "imageOffer": "UbuntuServer",
-    "subnet1Name": "Subnet-1",
     "nicNameMaster": "sshNIC",
     "nicNameWorker": "nic-execution-",    
     "networkSettings": {
@@ -82,14 +81,7 @@
     },    
     "publicIPAddressName": "sshPublicIP",
     "publicIPAddressType": "Dynamic",
-    "storageAccountType": "Premium_LRS",
-    "virtualNetworkName": "sshVNET",
-    "networkSecurityGroupName": "networkSecurityGroup1",
     "sshKeyPath": "[concat('/home/',parameters('adminUserName'),'/.ssh/authorized_keys')]",
-    "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
-    "subnet1Ref": "[concat(variables('vnetID'),'/subnets/',variables('subnet1Name'))]",
-    "apiVersion": "2016-05-01",
-    "storageAccountName": "[uniqueString(resourceGroup().id)]",
     "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets/', variables('networkSettings').virtualNetworkName, variables('networkSettings').subnet.dse.name)]",
     "installationCLI": "[concat('sh azuredeploy.sh ', variables('vmNameMaster'))]"    
   },
@@ -97,7 +89,7 @@
     {
       "type": "Microsoft.Storage/storageAccounts",
       "name": "[variables('storageAccountName')]",
-      "apiVersion": "[variables('apiVersion')]",
+      "apiVersion": "2016-05-01",
       "location": "[resourceGroup().location]",
       "kind": "Storage",
       "sku": {

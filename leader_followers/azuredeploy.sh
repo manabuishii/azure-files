@@ -18,6 +18,19 @@ sudo apt-get install -y git
 chef gem install knife-solo -v 0.6.0
 
 
+cd /tmp
+mkdir gridengine
+cd gridengine/
+git clone https://github.com/manabuishii/azure-files.git .
+cd leader_followers/chef
+berks vendor cookbooks
 
+if [ ${HOSTNAME} == "master" ];
+then
+  sudo chef-client -j environments/master.json -z  
+else
+  sudo chef-client -j environments/exec.json -z
+  sudo /etc/init.d/gridengine-exec start
+fi
 
 exit 0

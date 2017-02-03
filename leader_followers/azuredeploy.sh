@@ -33,9 +33,10 @@ echo "ROLE=[$ROLE]" >> /tmp/setting.txt.$$ 2>&1
 
 HOME=/root berks vendor cookbooks  > /tmp/berks.txt.$$ 2>&1
 echo "ROLE=[$ROLE]" > /tmp/out 2>&1
+echo "version 2 test with double quote" >> /tmp/out 2>&1
 test  ${ROLE} == "master"
 echo $? >> /tmp/out
-if [ ${ROLE} == "master" ];
+if [ "${ROLE}" == "master" ];
 then
   echo "MASTER ${ROLE} == \"master\" " >> /tmp/out
   chef-client -j environments/master.json -z   > /tmp/chef-master.txt.$$ 2>&1

@@ -23,7 +23,12 @@ mkdir gridengine
 cd gridengine/
 git clone https://github.com/manabuishii/azure-files.git .
 cd leader_followers/chef
-berks vendor cookbooks  > /tmp/berks.txt.$$ 2>&1
+
+id > /tmp/setting.txt.$$ 2>&1
+set >> /tmp/setting.txt.$$ 2>&1
+echo "HOME=[$HOME]" >> /tmp/setting.txt.$$ 2>&1
+
+HOME=/root berks vendor cookbooks  > /tmp/berks.txt.$$ 2>&1
 
 if [ ${HOSTNAME} == "master" ];
 then

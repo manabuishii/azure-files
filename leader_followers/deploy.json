@@ -1,0 +1,180 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "networkInterfaces_nic_execution_0_name": {
+            "defaultValue": "nic-execution-0",
+            "type": "String"
+        },
+        "networkInterfaces_nic_execution_1_name": {
+            "defaultValue": "nic-execution-1",
+            "type": "String"
+        },
+        "networkInterfaces_sshNIC_name": {
+            "defaultValue": "sshNIC",
+            "type": "String"
+        },
+        "publicIPAddresses_sshPublicIP_name": {
+            "defaultValue": "sshPublicIP",
+            "type": "String"
+        },
+        "virtualNetworks_virtualnetwork_name": {
+            "defaultValue": "virtualnetwork",
+            "type": "String"
+        },
+        "storageAccounts_sbjmcfvhvkt6y_name": {
+            "defaultValue": "sbjmcfvhvkt6y",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "comments": "リソース '/subscriptions/bfef1f74-f9b0-4b87-9c45-5563d2e5e97e/resourceGroups/TESTMANABUGROUP/providers/Microsoft.Network/networkInterfaces/nic-execution-0' から一般化されました。",
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[parameters('networkInterfaces_nic_execution_0_name')]",
+            "apiVersion": "2016-03-30",
+            "location": "japaneast",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAddress": "10.0.0.5",
+                            "privateIPAllocationMethod": "Static",
+                            "subnet": {
+                                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_virtualnetwork_name')), '/subnets/dse')]"
+                            }
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableIPForwarding": false
+            },
+            "resources": [],
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_virtualnetwork_name'))]"
+            ]
+        },
+        {
+            "comments": "リソース '/subscriptions/bfef1f74-f9b0-4b87-9c45-5563d2e5e97e/resourceGroups/TESTMANABUGROUP/providers/Microsoft.Network/networkInterfaces/nic-execution-1' から一般化されました。",
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[parameters('networkInterfaces_nic_execution_1_name')]",
+            "apiVersion": "2016-03-30",
+            "location": "japaneast",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAddress": "10.0.0.6",
+                            "privateIPAllocationMethod": "Static",
+                            "subnet": {
+                                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_virtualnetwork_name')), '/subnets/dse')]"
+                            }
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableIPForwarding": false
+            },
+            "resources": [],
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_virtualnetwork_name'))]"
+            ]
+        },
+        {
+            "comments": "リソース '/subscriptions/bfef1f74-f9b0-4b87-9c45-5563d2e5e97e/resourceGroups/TESTMANABUGROUP/providers/Microsoft.Network/networkInterfaces/sshNIC' から一般化されました。",
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[parameters('networkInterfaces_sshNIC_name')]",
+            "apiVersion": "2016-03-30",
+            "location": "japaneast",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAddress": "10.0.0.4",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_sshPublicIP_name'))]"
+                            },
+                            "subnet": {
+                                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_virtualnetwork_name')), '/subnets/dse')]"
+                            }
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableIPForwarding": false
+            },
+            "resources": [],
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_sshPublicIP_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_virtualnetwork_name'))]"
+            ]
+        },
+        {
+            "comments": "リソース '/subscriptions/bfef1f74-f9b0-4b87-9c45-5563d2e5e97e/resourceGroups/TESTMANABUGROUP/providers/Microsoft.Network/publicIPAddresses/sshPublicIP' から一般化されました。",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "name": "[parameters('publicIPAddresses_sshPublicIP_name')]",
+            "apiVersion": "2016-03-30",
+            "location": "japaneast",
+            "properties": {
+                "publicIPAllocationMethod": "Dynamic",
+                "idleTimeoutInMinutes": 4,
+                "dnsSettings": {
+                    "domainNameLabel": "slurm-sbjmcfvhvkt6y"
+                }
+            },
+            "resources": [],
+            "dependsOn": []
+        },
+        {
+            "comments": "リソース '/subscriptions/bfef1f74-f9b0-4b87-9c45-5563d2e5e97e/resourceGroups/TESTMANABUGROUP/providers/Microsoft.Network/virtualNetworks/virtualnetwork' から一般化されました。",
+            "type": "Microsoft.Network/virtualNetworks",
+            "name": "[parameters('virtualNetworks_virtualnetwork_name')]",
+            "apiVersion": "2016-03-30",
+            "location": "japaneast",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "dse",
+                        "properties": {
+                            "addressPrefix": "10.0.0.0/24"
+                        }
+                    }
+                ]
+            },
+            "resources": [],
+            "dependsOn": []
+        },
+        {
+            "comments": "リソース '/subscriptions/bfef1f74-f9b0-4b87-9c45-5563d2e5e97e/resourceGroups/testmanabugroup/providers/Microsoft.Storage/storageAccounts/sbjmcfvhvkt6y' から一般化されました。",
+            "type": "Microsoft.Storage/storageAccounts",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "Storage",
+            "name": "[parameters('storageAccounts_sbjmcfvhvkt6y_name')]",
+            "apiVersion": "2016-01-01",
+            "location": "japaneast",
+            "tags": {},
+            "properties": {},
+            "resources": [],
+            "dependsOn": []
+        }
+    ]
+}

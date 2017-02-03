@@ -1,0 +1,314 @@
+--- azuredeploy.json	2017-02-01 19:16:19.753101691 +0900
++++ azuredeploy.json.bak	2017-02-01 18:55:20.228864079 +0900
+@@ -4,15 +4,8 @@
+   "parameters": {
+     "adminUserName": {
+       "type": "string",
+-      "defaultValue": "azureuser",
+       "metadata": {
+-        "description": "User name for the Virtual Machine."
+-      }
+-    },
+-    "sshKeyData": {
+-      "type": "string",
+-      "metadata": {
+-        "description": "SSH rsa public key file as a string."
++        "description": "User name for the Virtual Machine. Pick a valid username otherwise there will be a BadRequest error."
+       }
+     },
+     "adminPassword": {
+@@ -28,19 +21,19 @@
+         "description": "Size of the nodes."
+       }
+     },
+-    "nodeExecutionCount": {
++    "scaleNumber": {
+       "type": "int",
+       "defaultValue": 2,
+       "metadata": {
+-        "description": "Number of execution nodes in the cluster."
++        "description": "This template create N worker node. Use scaleNumber to specify that N."
+       }
+-    },    
++    },
+     "_artifactsLocation": {
+       "type": "string",
+       "metadata": {
+         "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
+       },
+-      "defaultValue": "https://raw.githubusercontent.com/manabuishii/azure-files/master/leader_followers"
++      "defaultValue": "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/slurm"
+     },
+     "_artifactsLocationSasToken": {
+       "type": "securestring",
+@@ -51,22 +44,15 @@
+     }
+   },
+   "variables": {
+-    "vmSize": "Standard_DS2",
+-    "vmName": "sshvm",
+-    "vmNameExecution": "exec-",
+-    "ubuntuOSVersion": "14.04.4-LTS",
+-    "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'sasshvm')]",
+-    "uniqueDnsLabelPrefix": "[concat('store', uniquestring(resourceGroup().id))]",
+-    "location": "[resourceGroup().location]",
++    "dnsName": "[concat('slurm-', uniqueString(resourceGroup().id))]",
+     "imagePublisher": "Canonical",
+     "imageOffer": "UbuntuServer",
+-    "osDiskNameLeader": "osDisk1",
+-    "addressPrefix": "10.0.0.0/16",
+-    "subnet1Name": "Subnet-1",
+-    "subnet1Prefix": "10.0.0.0/24",
+-    "vmStorageAccountContainerName": "vhds",
+-    "nicNameMaster": "sshNIC",
+-    "nicNameWorker": "nic-execution-",    
++    "ubuntuOSVersion": "16.10",
++    "publicIPAddressName": "publicip",
++    "vmNameMaster": "master",
++    "vmNameWorker": "worker",
++    "nicNameMaster": "nic",
++    "nicNameWorker": "nic-worker-",
+     "networkSettings": {
+       "virtualNetworkName": "virtualnetwork",
+       "addressPrefix": "10.0.0.0/16",
+@@ -84,25 +70,16 @@
+         },
+         "master": "10.0.0.254"
+       }
+-    },    
+-    "publicIPAddressName": "sshPublicIP",
+-    "publicIPAddressType": "Dynamic",
+-    "storageAccountType": "Premium_LRS",
+-    "virtualNetworkName": "sshVNET",
+-    "networkSecurityGroupName": "networkSecurityGroup1",
+-    "sshKeyPath": "[concat('/home/',parameters('adminUserName'),'/.ssh/authorized_keys')]",
+-    "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
+-    "subnet1Ref": "[concat(variables('vnetID'),'/subnets/',variables('subnet1Name'))]",
+-    "apiVersion": "2016-05-01",
++    },
+     "storageAccountName": "[uniqueString(resourceGroup().id)]",
+     "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets/', variables('networkSettings').virtualNetworkName, variables('networkSettings').subnet.dse.name)]",
+-    "installationCLI": "[concat('sh azuredeploy.sh ', variables('vmName'))]"    
++    "installationCLI": "[concat('sh azuredeploy.sh ', variables('vmNameMaster'), ' ', variables('networkSettings').statics.master, ' ', variables('vmNameWorker'), ' ', variables('networkSettings').statics.workerRange.base, ' ', variables('networkSettings').statics.workerRange.start, ' ', parameters('scaleNumber'), ' ', parameters('adminUsername'), ' ', parameters('adminPassword'), ' ', parameters('_artifactsLocation'))]"
+   },
+   "resources": [
+     {
+       "type": "Microsoft.Storage/storageAccounts",
+       "name": "[variables('storageAccountName')]",
+-      "apiVersion": "[variables('apiVersion')]",
++      "apiVersion": "2016-05-01",
+       "location": "[resourceGroup().location]",
+       "kind": "Storage",
+       "sku": {
+@@ -131,64 +108,38 @@
+       }
+     },
+     {
+-      "apiVersion": "[variables('apiVersion')]",
+       "type": "Microsoft.Network/publicIPAddresses",
++      "apiVersion": "2016-09-01",
+       "name": "[variables('publicIPAddressName')]",
+-      "location": "[variables('location')]",
++      "location": "[resourceGroup().location]",
+       "properties": {
+-        "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
++        "publicIPAllocationMethod": "Dynamic",
+         "dnsSettings": {
+-          "domainNameLabel": "[variables('uniqueDnsLabelPrefix')]"
++          "domainNameLabel": "[variables('dnsName')]"
+         }
+       }
+     },
+     {
+-      "apiVersion": "[variables('apiVersion')]",
+-      "type": "Microsoft.Network/virtualNetworks",
+-      "name": "[variables('virtualNetworkName')]",
+-      "location": "[variables('location')]",
+-      "dependsOn": [
+-        "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]"
+-      ],
+-      "properties": {
+-        "addressSpace": {
+-          "addressPrefixes": [
+-            "[variables('addressPrefix')]"
+-          ]
+-        },
+-        "subnets": [
+-          {
+-            "name": "[variables('subnet1Name')]",
+-            "properties": {
+-              "addressPrefix": "[variables('subnet1Prefix')]",
+-              "networkSecurityGroup": {
+-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+-              }              
+-            }
+-          }
+-        ]
+-      }
+-    },
+-    {
+-      "apiVersion": "[variables('apiVersion')]",
++      "apiVersion": "2016-09-01",
+       "type": "Microsoft.Network/networkInterfaces",
+       "name": "[variables('nicNameMaster')]",
+-      "location": "[variables('location')]",
++      "location": "[resourceGroup().location]",
+       "dependsOn": [
+-        "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]",
+-        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
++        "[variables('publicIPAddressName')]",
++        "[variables('networkSettings').virtualNetworkName]"
+       ],
+       "properties": {
+         "ipConfigurations": [
+           {
+             "name": "ipconfig1",
+             "properties": {
+-              "privateIPAllocationMethod": "Dynamic",
++              "privateIPAllocationMethod": "Static",
++              "privateIPAddress": "[variables('networkSettings').statics.master]",
+               "publicIPAddress": {
+                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]"
+               },
+               "subnet": {
+-                "id": "[variables('subnet1Ref')]"
++                "id": "[variables('subnetRef')]"
+               }
+             }
+           }
+@@ -196,32 +147,22 @@
+       }
+     },
+     {
+-      "apiVersion": "[variables('apiVersion')]",
++      "apiVersion": "2016-03-30",
+       "type": "Microsoft.Compute/virtualMachines",
+-      "name": "[variables('vmName')]",
+-      "location": "[variables('location')]",
++      "name": "[variables('vmNameMaster')]",
++      "location": "[resourceGroup().location]",
+       "dependsOn": [
+-        "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+-        "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
++        "[variables('storageAccountName')]",
++        "[variables('nicNameMaster')]"
+       ],
+       "properties": {
+         "hardwareProfile": {
+-          "vmSize": "[variables('vmSize')]"
++          "vmSize": "[parameters('vmSize')]"
+         },
+         "osProfile": {
+-          "computerName": "[variables('vmName')]",
+-          "adminUsername": "[parameters('adminUserName')]",
+-          "linuxConfiguration": {
+-            "disablePasswordAuthentication": "true",
+-            "ssh": {
+-              "publicKeys": [
+-                {
+-                  "path": "[variables('sshKeyPath')]",
+-                  "keyData": "[parameters('sshKeyData')]"
+-                }
+-              ]
+-            }
+-          }
++          "computerName": "[variables('vmNameMaster')]",
++          "adminUsername": "[parameters('adminUsername')]",
++          "adminPassword": "[parameters('adminPassword')]"
+         },
+         "storageProfile": {
+           "imageReference": {
+@@ -242,7 +183,7 @@
+         "networkProfile": {
+           "networkInterfaces": [
+             {
+-              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
++              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicNameMaster'))]"
+             }
+           ]
+         }
+@@ -254,7 +195,7 @@
+           "name": "Installation",
+           "location": "[resourceGroup().location]",
+           "dependsOn": [
+-            "[variables('vmName')]"
++            "[variables('vmNameMaster')]"
+           ],
+           "properties": {
+             "publisher": "Microsoft.Azure.Extensions",
+@@ -272,7 +213,6 @@
+           }
+         }
+       ]
+-      
+     },
+     {
+       "apiVersion": "2016-09-01",
+@@ -284,7 +224,7 @@
+       ],
+       "copy": {
+         "name": "nicLoop",
+-        "count": "[parameters('nodeExecutionCount')]"
++        "count": "[parameters('scaleNumber')]"
+       },
+       "properties": {
+         "ipConfigurations": [
+@@ -300,11 +240,11 @@
+           }
+         ]
+       }
+-    },    
++    },
+     {
+       "apiVersion": "2016-03-30",
+       "type": "Microsoft.Compute/virtualMachines",
+-      "name": "[concat(variables('vmNameExecution'), copyindex())]",
++      "name": "[concat(variables('vmNameWorker'), copyindex())]",
+       "location": "[resourceGroup().location]",
+       "dependsOn": [
+         "[variables('storageAccountName')]",
+@@ -312,14 +252,14 @@
+       ],
+       "copy": {
+         "name": "foo",
+-        "count": "[parameters('nodeExecutionCount')]"
++        "count": "[parameters('scaleNumber')]"
+       },
+       "properties": {
+         "hardwareProfile": {
+           "vmSize": "[parameters('vmSize')]"
+         },
+         "osProfile": {
+-          "computerName": "[concat(variables('vmNameExecution'), copyindex())]",
++          "computerName": "[concat(variables('vmNameWorker'), copyindex())]",
+           "adminUsername": "[parameters('adminUsername')]",
+           "adminPassword": "[parameters('adminPassword')]"
+         },
+@@ -333,7 +273,7 @@
+           "osDisk": {
+             "name": "osdisk",
+             "vhd": {
+-              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob, 'vhds/osdisk-', variables('vmNameExecution'), copyIndex(), '.vhd')]"
++              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob, 'vhds/osdisk-', variables('vmNameWorker'), copyIndex(), '.vhd')]"
+             },
+             "caching": "ReadWrite",
+             "createOption": "FromImage"
+@@ -348,12 +288,11 @@
+         }
+       }
+     }
+-
+   ],
+-    "outputs": {
+-    "sshCommand": {
++  "outputs": {
++    "dnsName": {
+       "type": "string",
+-      "value": "[concat('ssh ', parameters('adminUsername'), '@', variables('uniqueDnsLabelPrefix'), '.', resourceGroup().location, '.cloudapp.azure.com')]"
+-    } 
++      "value": "[reference(variables('publicIPAddressName')).dnsSettings.fqdn]"
++    }
+   }
+-}
++}
+\ No newline at end of file

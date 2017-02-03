@@ -32,11 +32,15 @@ echo "HOSTNAME=[$HOSTNAME]" >> /tmp/setting.txt.$$ 2>&1
 echo "ROLE=[$ROLE]" >> /tmp/setting.txt.$$ 2>&1
 
 HOME=/root berks vendor cookbooks  > /tmp/berks.txt.$$ 2>&1
-
+echo "ROLE=[$ROLE]" > /tmp/out 2>&1
+test  ${ROLE} == "master"
+echo $? >> /tmp/out
 if [ ${ROLE} == "master" ];
 then
+  echo "MASTER ${ROLE} == \"master\" " >> /tmp/out
   chef-client -j environments/master.json -z   > /tmp/chef-master.txt.$$ 2>&1
 else
+  echo "EXEC ${ROLE} == \"master\" " >> /tmp/out
   chef-client -j environments/exec.json -z  > /tmp/chef-client.txt.$$ 2>&1
   /etc/init.d/gridengine-exec stop  >> /tmp/chef-client.txt.$$ 2>&1
   /etc/init.d/gridengine-exec start >> /tmp/chef-client.txt.$$ 2>&1

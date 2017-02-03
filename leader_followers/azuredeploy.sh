@@ -9,7 +9,8 @@ date > /tmp/azuredeploy.log.$$ 2>&1
 whoami >> /tmp/azuredeploy.log.$$ 2>&1
 echo $@ >> /tmp/azuredeploy.log.$$ 2>&1
 
-echo "Hello [$1] world" > /tmp/helloworld.txt.$$ 2>&1
+ROLE=$1
+echo "Hello [$ROLE] world" > /tmp/helloworld.txt.$$ 2>&1
 curl -L https://www.opscode.com/chef/install.sh | sudo bash -s -- -P chefdk -v 1.2.20 > /tmp/chef.txt.$$ 2>&1
 
 sudo apt-get update
@@ -28,10 +29,11 @@ id > /tmp/setting.txt.$$ 2>&1
 set >> /tmp/setting.txt.$$ 2>&1
 echo "HOME=[$HOME]" >> /tmp/setting.txt.$$ 2>&1
 echo "HOSTNAME=[$HOSTNAME]" >> /tmp/setting.txt.$$ 2>&1
+echo "ROLE=[$ROLE]" >> /tmp/setting.txt.$$ 2>&1
 
 HOME=/root berks vendor cookbooks  > /tmp/berks.txt.$$ 2>&1
 
-if [ ${HOSTNAME} == "master" ];
+if [ ${ROLE} == "master" ];
 then
   chef-client -j environments/master.json -z   > /tmp/chef-master.txt.$$ 2>&1
 else

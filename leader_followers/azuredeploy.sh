@@ -30,6 +30,7 @@ then
   sudo chef-client -j environments/master.json -z  
 else
   sudo chef-client -j environments/exec.json -z
+  sudo /etc/init.d/gridengine-exec stop
   sudo /etc/init.d/gridengine-exec start
 fi
 

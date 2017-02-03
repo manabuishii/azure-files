@@ -1,0 +1,8 @@
+{
+  "gengine":{
+    "master": "master"
+  },
+  "run_list": [
+    "recipe[gengine]"
+  ]
+}

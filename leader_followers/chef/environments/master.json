@@ -1,0 +1,19 @@
+{
+  "gengine": {
+    "role": "master",
+    "host_groups": {
+      "default": {
+        "nodes": []
+      }
+    },
+    "queues": {
+      "default": {
+        "hostlist": "@default"
+      }
+    }
+  },
+  "run_list": [
+    "recipe[gengine]"
+  ]
+
+}

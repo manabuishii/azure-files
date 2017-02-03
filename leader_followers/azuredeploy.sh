@@ -27,12 +27,13 @@ cd leader_followers/chef
 id > /tmp/setting.txt.$$ 2>&1
 set >> /tmp/setting.txt.$$ 2>&1
 echo "HOME=[$HOME]" >> /tmp/setting.txt.$$ 2>&1
+echo "HOSTNAME=[$HOSTNAME]" >> /tmp/setting.txt.$$ 2>&1
 
 HOME=/root berks vendor cookbooks  > /tmp/berks.txt.$$ 2>&1
 
 if [ ${HOSTNAME} == "master" ];
 then
-  chef-client -j environments/master.json -z   > /tmp/chef-client.txt.$$ 2>&1
+  chef-client -j environments/master.json -z   > /tmp/chef-master.txt.$$ 2>&1
 else
   chef-client -j environments/exec.json -z  > /tmp/chef-client.txt.$$ 2>&1
   /etc/init.d/gridengine-exec stop  >> /tmp/chef-client.txt.$$ 2>&1

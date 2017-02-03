@@ -23,15 +23,15 @@ mkdir gridengine
 cd gridengine/
 git clone https://github.com/manabuishii/azure-files.git .
 cd leader_followers/chef
-berks vendor cookbooks
+berks vendor cookbooks  > /tmp/berks.txt.$$ 2>&1
 
 if [ ${HOSTNAME} == "master" ];
 then
-  sudo chef-client -j environments/master.json -z  
+  chef-client -j environments/master.json -z   > /tmp/chef-client.txt.$$ 2>&1
 else
-  sudo chef-client -j environments/exec.json -z
-  sudo /etc/init.d/gridengine-exec stop
-  sudo /etc/init.d/gridengine-exec start
+  chef-client -j environments/exec.json -z  > /tmp/chef-client.txt.$$ 2>&1
+  /etc/init.d/gridengine-exec stop  >> /tmp/chef-client.txt.$$ 2>&1
+  /etc/init.d/gridengine-exec start >> /tmp/chef-client.txt.$$ 2>&1
 fi
 
 exit 0

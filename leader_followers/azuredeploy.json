@@ -83,7 +83,8 @@
     "publicIPAddressType": "Dynamic",
     "sshKeyPath": "[concat('/home/',parameters('adminUserName'),'/.ssh/authorized_keys')]",
     "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets/', variables('networkSettings').virtualNetworkName, variables('networkSettings').subnet.dse.name)]",
-    "installationCLI": "[concat('sh azuredeploy.sh ', variables('vmNameMaster'))]"    
+    "installationCLILeader": "[concat('sh azuredeploy.sh ', 'master')]",  
+    "installationCLIFollower": "[concat('sh azuredeploy.sh ', 'exec')]"    
   },
   "resources": [
     {
@@ -227,7 +228,7 @@
               ]
             },
             "protectedSettings": {
-              "commandToExecute": "[variables('installationCLI')]"
+              "commandToExecute": "[variables('installationCLILeader')]"
             }
           }
         }
@@ -327,7 +328,7 @@
               ]
             },
             "protectedSettings": {
-              "commandToExecute": "[variables('installationCLI')]"
+              "commandToExecute": "[variables('installationCLIFollower')]"
             }
           }
         }

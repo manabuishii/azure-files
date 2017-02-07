@@ -17,21 +17,17 @@ currentlist=($(tail -n +2 ${HOSTGROUPFILE} | sed -e 's/^hostlist//' | awk '{prin
 #
 ADDNEWHOST=0
 
-#for i in {0..2}
 for i in {0..253}
 do
   EXECHOST="exec-${i}"
-  # echo ${EXECHOST}
   ping -c 1 ${EXECHOST} &> /dev/null
   RET=$?
   if [ ${RET} -eq 0 ];
   then
-    # echo "FOUND new host by ping [${EXECHOST}]"
     array_check ${EXECHOST}
     CHECK=$?
     if [ ${CHECK} -eq 0 ];
     then
-      # echo "ADD host [${EXECHOST}]"
       currentlist=("${currentlist[@]}" "${EXECHOST}")
       ADDNEWHOST=1
     fi
@@ -45,8 +41,9 @@ then
   for i in ${currentlist[@]};do
     NEWHOSTLIST="${NEWHOSTLIST} ${i}"
   done
-  echo "NEW HOST LIST"
   echo ${NEWHOSTLIST}
-  sed -e "s/^hostlist.*$/${NEWHOSTLIST}/" /tmp/hostgroup > /tmp/newhostgroup
-  sudo qconf -Mhgrp ${HOSTGROUPFILE}
+  NEWHOSTGROUPFILE=/tmp/newhostgroup
+  head -n 1 ${HOSTGROUPFILE} > ${NEWHOSTGROUPFILE} 
+  echo "${NEWHOSTLIST}" >> ${NEWHOSTGROUPFILE}
+  sudo qconf -Mhgrp ${NEWHOSTGROUPFILE}
 fi

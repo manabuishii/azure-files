@@ -1,0 +1,133 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/VM_IP.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D1_v2"
+    },
+    "adminUserName": {
+      "type": "string"
+    },
+    "adminPassword": {
+      "type": "securestring"
+    },
+    "executionNodeOffset": {
+      "type": "int"
+    },
+    "nodeExecutionCountAppend": {
+      "type": "int"
+    },
+    "imageURI":{
+      "type": "string"
+    }
+  },
+  "variables": {
+    "vmNameExecution": "exec-",
+    "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'sasmaster')]",
+    "location": "[resourceGroup().location]",
+    "dnsName": "[concat('machine-', uniqueString(resourceGroup().id))]",
+    "nicNameWorker": "nic-execution-",    
+    "networkSettings": {
+      "virtualNetworkName": "virtualnetwork",
+      "addressPrefix": "10.0.0.0/16",
+      "subnet": {
+        "dse": {
+          "name": "dse",
+          "prefix": "10.0.0.0/24",
+          "vnet": "virtualnetwork"
+        }
+      },
+      "statics": {
+        "workerRange": {
+          "base": "10.0.0.",
+          "start": "[add(5, parameters('executionNodeOffset'))]"
+        },
+        "master": "10.0.0.254"
+      }
+    },    
+    "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets/', variables('networkSettings').virtualNetworkName, variables('networkSettings').subnet.dse.name)]"
+  },  
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[variables('storageAccountName')]",
+      "apiVersion": "2016-05-01",
+      "location": "[resourceGroup().location]",
+      "kind": "Storage",
+      "sku": {
+        "name": "Standard_LRS"
+      }
+    },
+    {
+      "apiVersion": "2016-09-01",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat(variables('nicNameWorker'), copyindex(parameters('executionNodeOffset')))]",
+      "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "nicLoop",
+        "count": "[parameters('nodeExecutionCountAppend')]"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Static",
+              "privateIPAddress": "[concat(variables('networkSettings').statics.workerRange.base, copyindex(variables('networkSettings').statics.workerRange.start))]",
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2016-03-30",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[concat(variables('vmNameExecution'), copyindex(parameters('executionNodeOffset')))]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[variables('storageAccountName')]",
+        "nicLoop"
+      ],
+      "copy": {
+        "name": "foo",
+        "count": "[parameters('nodeExecutionCountAppend')]"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "provisioningState": 0,
+        "osProfile": {
+          "computerName": "[concat(variables('vmNameExecution'), copyindex(parameters('executionNodeOffset')))]",
+          "adminUsername": "[parameters('adminUserName')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "osDisk": {
+            "osType": "Linux",
+            "name": "myVHDNamePrefix-osDisk.c6cffc4e-42fa-429c-b849-69720ec30b49.vhd",
+            "createOption": "FromImage",
+            "image": {
+              "uri": "[parameters('imageURI')]"
+            },
+            "vhd": {
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob, 'vhds/osdisk-', variables('vmNameExecution'), copyIndex(parameters('executionNodeOffset')), '.vhd')]"
+            },
+            "caching": "ReadWrite"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('nicNameWorker'), copyindex(parameters('executionNodeOffset'))))]"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

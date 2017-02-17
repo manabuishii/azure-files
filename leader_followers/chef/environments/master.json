@@ -12,6 +12,13 @@
       }
     }
   },
+  "docker_install":{
+    "docker": {
+      "distribution": "ubuntu-trusty",
+      "version": "1.12.3",
+      "members": "azureuser"
+    }
+  },
   "run_list": [
     "recipe[gengine]", "recipe[docker-install::docker-install]"
   ]

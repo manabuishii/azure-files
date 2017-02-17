@@ -3,6 +3,6 @@
     "master": "master"
   },
   "run_list": [
-    "recipe[gengine]", "recipe[docker-install]"
+    "recipe[gengine]", "recipe[docker-install::docker-install]"
   ]
 }

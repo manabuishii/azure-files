@@ -1,4 +1,4 @@
 source "https://supermarket.chef.io"
 cookbook 'apt'
 cookbook 'gengine', github: "manabuishii/gengine-chef-cookbook"
-cookbook 'docker'
+cookbook 'docker-install', github: "manabuishii/docker-install-cookbook"

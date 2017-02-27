@@ -1,0 +1,15 @@
+{
+  "gengine":{
+    "master": "master"
+  },
+  "basicsetup":{
+    "docker": {
+      "distribution": "ubuntu-trusty",
+      "version": "1.12.3",
+      "members": "azureuser"
+    }
+  },
+  "run_list": [
+    "recipe[basicsetup::docker-install]"
+  ]
+}

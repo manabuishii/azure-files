@@ -50,6 +50,7 @@ then
   /etc/init.d/gridengine-exec start >> /tmp/chef-client.txt.$$ 2>&1
 elif [ "${ROLE}" = "standalone" ];
 then
+  chef-client -j environments/standalone.json -z  > /tmp/chef-client.txt.$$ 2>&1
   echo "EXEC ${ROLE} == \"standalone\" " >> /tmp/out
 else
   echo "EXEC ${ROLE} == \"other\" " >> /tmp/out

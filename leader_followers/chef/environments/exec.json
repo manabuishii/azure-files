@@ -2,7 +2,7 @@
   "gengine":{
     "master": "master"
   },
-  "docker_install":{
+  "basicsetup":{
     "docker": {
       "distribution": "ubuntu-trusty",
       "version": "1.12.3",
@@ -10,6 +10,6 @@
     }
   },
   "run_list": [
-    "recipe[gengine]", "recipe[docker-install::docker-install]"
+    "recipe[gengine]", "recipe[basicsetup::docker-install]"
   ]
 }

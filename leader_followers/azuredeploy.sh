@@ -38,18 +38,15 @@ test  ${ROLE} == "master"
 echo $? >> /tmp/out
 if [ "${ROLE}" = "master" ];
 then
-  echo "MASTER ${ROLE} " >> /tmp/out
+  echo "MASTER ${ROLE} == \"master\" " >> /tmp/out
   chef-client -j environments/master.json -z   > /tmp/chef-master.txt.$$ 2>&1
   /etc/init.d/gridengine-master stop  >> /tmp/chef-master.txt.$$ 2>&1
   /etc/init.d/gridengine-master start >> /tmp/chef-master.txt.$$ 2>&1
-elif [ "${ROLE}" = "exec" ];
-  echo "EXEC ${ROLE}" >> /tmp/out
+else
+  echo "EXEC ${ROLE} == \"master\" " >> /tmp/out
   chef-client -j environments/exec.json -z  > /tmp/chef-client.txt.$$ 2>&1
   /etc/init.d/gridengine-exec stop  >> /tmp/chef-client.txt.$$ 2>&1
   /etc/init.d/gridengine-exec start >> /tmp/chef-client.txt.$$ 2>&1
-elif [ "${ROLE}" = "standalone" ];
-  echo "STANDALONE ${ROLE}" >> /tmp/out
-  chef-client -j environments/exec.json -z  > /tmp/chef-client.txt.$$ 2>&1
 fi
 
 exit 0

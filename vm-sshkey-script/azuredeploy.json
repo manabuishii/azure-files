@@ -60,7 +60,7 @@
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
     "subnet1Ref": "[concat(variables('vnetID'),'/subnets/',variables('subnet1Name'))]",
     "apiVersion": "2015-06-15",
-    "installationCLI": "[concat('sh azuredeploy.sh ', variables('vmName'))]"    
+    "installationCLI": "[concat('sh azuredeploy.sh ', parameters('vmName'))]"    
   },
   "resources": [
     {
@@ -164,7 +164,7 @@
     {
       "apiVersion": "[variables('apiVersion')]",
       "type": "Microsoft.Compute/virtualMachines",
-      "name": "[variables('vmName')]",
+      "name": "[parameters('vmName')]",
       "location": "[variables('location')]",
       "dependsOn": [
         "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
@@ -175,7 +175,7 @@
           "vmSize": "[variables('vmSize')]"
         },
         "osProfile": {
-          "computerName": "[variables('vmName')]",
+          "computerName": "[parameters('vmName')]",
           "adminUsername": "[parameters('adminUserName')]",
           "linuxConfiguration": {
             "disablePasswordAuthentication": "true",
@@ -220,7 +220,7 @@
           "name": "Installation",
           "location": "[resourceGroup().location]",
           "dependsOn": [
-            "[variables('vmName')]"
+            "[parameters('vmName')]"
           ],
           "properties": {
             "publisher": "Microsoft.Azure.Extensions",

@@ -28,11 +28,17 @@
         "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated."
       },
       "defaultValue": ""
+    },
+    "vmName": {
+      "type": "string",
+      "metadata": {
+        "description": "Hostname"
+      },
+      "defaultValue": "sshvm"
     }
   },
   "variables": {
     "vmSize": "Standard_DS2",
-    "vmName": "sshvm",
     "ubuntuOSVersion": "14.04.4-LTS",
     "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'sasshvm')]",
     "uniqueDnsLabelPrefix": "[concat('store', uniquestring(resourceGroup().id))]",

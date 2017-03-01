@@ -38,7 +38,7 @@ test  ${ROLE} == "master"
 echo $? >> /tmp/out
 if [ "${ROLE}" = "master" ];
 then
- echo "MASTER ${ROLE} == \"master\" " >> /tmp/out
+  echo "MASTER ${ROLE} == \"master\" " >> /tmp/out
   chef-client -j environments/master.json -z   > /tmp/chef-master.txt.$$ 2>&1
   /etc/init.d/gridengine-master stop  >> /tmp/chef-master.txt.$$ 2>&1
   /etc/init.d/gridengine-master start >> /tmp/chef-master.txt.$$ 2>&1

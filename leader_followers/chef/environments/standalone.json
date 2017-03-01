@@ -7,6 +7,10 @@
       "distribution": "ubuntu-trusty",
       "version": "1.12.3",
       "members": "azureuser"
+    },
+    "galaxy": {
+      "user": "azureuser",
+      "group": "azureuser"
     }
   },
   "run_list": [

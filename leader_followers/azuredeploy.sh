@@ -42,6 +42,23 @@ then
   chef-client -j environments/master.json -z   > /tmp/chef-master.txt.$$ 2>&1
   /etc/init.d/gridengine-master stop  >> /tmp/chef-master.txt.$$ 2>&1
   /etc/init.d/gridengine-master start >> /tmp/chef-master.txt.$$ 2>&1
+  ## Create /etc/hosts
+  # MASTER_NAME MASTER_IP WORKER_NAME WORKER_IP_BASE WORKER_IP_START
+  MASTER_NAME=$2
+  MASTER_IP=$3
+  WORKER_NAME=$4
+  WORKER_IP_BASE=$5
+  WORKER_IP_START=$6
+  NUM_OF_VM=100
+  ##
+  echo $MASTER_IP $MASTER_NAME > /tmp/hosts.$$
+  i=0
+  while [ $i -lt $NUM_OF_VM ]
+  do
+    workerip=`expr $i + $WORKER_IP_START`
+    echo $WORKER_IP_BASE$workerip $WORKER_NAME$i >> /tmp/hosts.$$
+    i=`expr $i + 1`
+  done
 elif [ "${ROLE}" = "exec" ];
 then
   echo "EXEC ${ROLE} == \"exec\" " >> /tmp/out

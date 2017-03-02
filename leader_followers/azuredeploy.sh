@@ -51,11 +51,13 @@ then
   WORKER_IP_START=$6
   NUM_OF_VM=100
   ##
+  echo $MASTER_IP $MASTER_NAME > /etc/hosts
   echo $MASTER_IP $MASTER_NAME > /tmp/hosts.$$
   i=0
   while [ $i -lt $NUM_OF_VM ]
   do
     workerip=`expr $i + $WORKER_IP_START`
+    echo $WORKER_IP_BASE$workerip $WORKER_NAME$i >> /etc/hosts
     echo $WORKER_IP_BASE$workerip $WORKER_NAME$i >> /tmp/hosts.$$
     i=`expr $i + 1`
   done

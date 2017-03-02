@@ -84,7 +84,7 @@
     "sshKeyPath": "[concat('/home/',parameters('adminUserName'),'/.ssh/authorized_keys')]",
     "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets/', variables('networkSettings').virtualNetworkName, variables('networkSettings').subnet.dse.name)]",
     "installationCLILeader": "[concat('sh azuredeploy.sh ', 'master',' ', variables('vmNameMaster'),' ', variables('networkSettings').statics.master,' ', variables('vmNameExecution'),' ', variables('networkSettings').statics.workerRange.base,' ', variables('networkSettings').statics.workerRange.start)]",
-    "installationCLIFollower": "[concat('sh azuredeploy.sh ', 'exec')]"    
+    "installationCLIFollower": "[concat('sh azuredeploy.sh ', 'exec',' ', variables('vmNameMaster'),' ', variables('networkSettings').statics.master,' ', variables('vmNameExecution'),' ', variables('networkSettings').statics.workerRange.base,' ', variables('networkSettings').statics.workerRange.start)]"
   },
   "resources": [
     {

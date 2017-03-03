@@ -36,6 +36,12 @@ then
     echo "Usage: $0 standalone" >> /tmp/azuredeploy.log.$$
     exit 1
   fi
+elif  [ "${ROLE}" = "nfsserver" ];
+then
+  if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 standalone" >> /tmp/azuredeploy.log.$$
+    exit 1
+  fi
 else
   if [ "$#" -ne 6 ]; then
     echo "Usage: $0 master|exec MASTER_NAME MASTER_IP WORKER_NAME WORKER_IP_BASE WORKER_IP_START" >> /tmp/azuredeploy.log.$$

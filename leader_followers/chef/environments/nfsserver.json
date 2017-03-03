@@ -1,6 +1,6 @@
 {
   "tz":"Asia/Tokyo",
   "run_list": [
-    "recipe[nfs]", "recipe[nfssetup]" 
+    "recipe[nfs]", "recipe[nfs::server]", "recipe[nfssetup]"
   ]
 }

@@ -105,6 +105,8 @@ then
   chef-client -j environments/standalone.json -z  > /tmp/chef-client.txt.$$ 2>&1
   echo "EXEC ${ROLE} == \"standalone\" " >> /tmp/out
 elif  [ "${ROLE}" = "nfsserver" ];
+then
+  echo "EXEC ${ROLE} == \"standalone\" " >> /tmp/out
   # Setup standalone
   curl  -o /tmp/vm-disk-utils-0.1.sh https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/shared_scripts/ubuntu/vm-disk-utils-0.1.sh
   chmod 755 /tmp/vm-disk-utils-0.1.sh

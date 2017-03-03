@@ -57,7 +57,7 @@ fi
 curl -L https://www.opscode.com/chef/install.sh | sudo bash -s -- -P chefdk -v 1.2.20 > /tmp/chef.txt.$$ 2>&1
 
 sudo apt-get update
-sudo apt-get install -y git
+sudo apt-get install -y git curl
 
 chef gem install knife-solo -v 0.6.0
 
@@ -98,6 +98,14 @@ then
   # Setup standalone
   chef-client -j environments/standalone.json -z  > /tmp/chef-client.txt.$$ 2>&1
   echo "EXEC ${ROLE} == \"standalone\" " >> /tmp/out
+elif  [ "${ROLE}" = "nfsserver" ];
+  # Setup standalone
+  curl  -o /tmp/vm-disk-utils-0.1.sh https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/shared_scripts/ubuntu/vm-disk-utils-0.1.sh
+  chmod 755 /tmp/vm-disk-utils-0.1.sh
+  bash /tmp/vm-disk-utils-0.1.sh -s
+
+　# do chef
+  #chef-client -j environments/nfsserver.json -z  > /tmp/chef-client.txt.$$ 2>&1
 else
   echo "EXEC ${ROLE} == \"other\" " >> /tmp/out
 fi

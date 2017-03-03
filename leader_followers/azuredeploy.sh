@@ -113,7 +113,7 @@ then
   bash /tmp/vm-disk-utils-0.1.sh -s
 
 　# do chef
-  #chef-client -j environments/nfsserver.json -z  > /tmp/chef-client.txt.$$ 2>&1
+  chef-client -j environments/nfsserver.json -z  > /tmp/chef-client.txt.$$ 2>&1
 else
   echo "EXEC ${ROLE} == \"other\" " >> /tmp/out
 fi

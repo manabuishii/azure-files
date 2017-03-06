@@ -67,20 +67,13 @@
       "metadata": {
         "description": "Size of each data disk attached to data nodes in (Gb)"
       }
-    },
-    "numberOfDisks": {
-      "type": "int",
-      "defaultValue": 3,
-      "metadata": {
-        "description": "Number of data disks"
-      }
     }
   },
   "variables": {
     "vmStorageAccountContainerName": "vhd",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',parameters('virtualNetworkName'))]",
     "subnet1Ref": "[concat(variables('vnetID'),'/subnets/',parameters('subnet1Name'))]",
-    "scriptUrl": "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/shared_scripts/ubuntu/vm-disk-utils-0.1.sh",
+    "scriptUrl": "https://raw.githubusercontent.com/manabuishii/azure-files/master/leader_followers/azuredeploy.sh",
     "securityGroupName": "diskraidnsg"
   },
   "resources": [
@@ -233,6 +226,86 @@
               },
               "caching": "None",
               "createOption": "Empty"
+            },
+            {
+              "name": "datadisk3",
+              "diskSizeGB": "[parameters('dataDiskSize')]",
+              "lun": 2,
+              "vhd": {
+                "Uri": "[concat('http://',parameters('storageAccountName'),'.blob.core.windows.net/vhds/','myvm','dataDisk3' ,'.vhd')]"
+              },
+              "caching": "None",
+              "createOption": "Empty"
+            },
+            {
+              "name": "datadisk4",
+              "diskSizeGB": "[parameters('dataDiskSize')]",
+              "lun": 3,
+              "vhd": {
+                "Uri": "[concat('http://',parameters('storageAccountName'),'.blob.core.windows.net/vhds/','myvm' ,'dataDisk4','.vhd')]"
+              },
+              "caching": "None",
+              "createOption": "Empty"
+            },
+                        {
+              "name": "datadisk5",
+              "diskSizeGB": "[parameters('dataDiskSize')]",
+              "lun": 4,
+              "vhd": {
+                "Uri": "[concat('http://',parameters('storageAccountName'),'.blob.core.windows.net/vhds/','myvm','dataDisk5' ,'.vhd')]"
+              },
+              "caching": "None",
+              "createOption": "Empty"
+            },
+            {
+              "name": "datadisk6",
+              "diskSizeGB": "[parameters('dataDiskSize')]",
+              "lun": 5,
+              "vhd": {
+                "Uri": "[concat('http://',parameters('storageAccountName'),'.blob.core.windows.net/vhds/','myvm' ,'dataDisk6','.vhd')]"
+              },
+              "caching": "None",
+              "createOption": "Empty"
+            },
+                        {
+              "name": "datadisk7",
+              "diskSizeGB": "[parameters('dataDiskSize')]",
+              "lun": 6,
+              "vhd": {
+                "Uri": "[concat('http://',parameters('storageAccountName'),'.blob.core.windows.net/vhds/','myvm','dataDisk7' ,'.vhd')]"
+              },
+              "caching": "None",
+              "createOption": "Empty"
+            },
+            {
+              "name": "datadisk8",
+              "diskSizeGB": "[parameters('dataDiskSize')]",
+              "lun": 7,
+              "vhd": {
+                "Uri": "[concat('http://',parameters('storageAccountName'),'.blob.core.windows.net/vhds/','myvm' ,'dataDisk8','.vhd')]"
+              },
+              "caching": "None",
+              "createOption": "Empty"
+            },
+                        {
+              "name": "datadisk9",
+              "diskSizeGB": "[parameters('dataDiskSize')]",
+              "lun": 8,
+              "vhd": {
+                "Uri": "[concat('http://',parameters('storageAccountName'),'.blob.core.windows.net/vhds/','myvm','dataDisk9' ,'.vhd')]"
+              },
+              "caching": "None",
+              "createOption": "Empty"
+            },
+            {
+              "name": "datadisk10",
+              "diskSizeGB": "[parameters('dataDiskSize')]",
+              "lun": 9,
+              "vhd": {
+                "Uri": "[concat('http://',parameters('storageAccountName'),'.blob.core.windows.net/vhds/','myvm' ,'dataDisk10','.vhd')]"
+              },
+              "caching": "None",
+              "createOption": "Empty"
             }
           ]
         },
@@ -262,11 +335,17 @@
               "fileUris": [
                 "[variables('scriptUrl')]"
               ],
-              "commandToExecute": "bash vm-disk-utils-0.1.sh -s"
+              "commandToExecute": "[concat('sh azuredeploy.sh ', 'nfsserver')]"
             }
           }
         }
       ]
     }
-  ]
+  ],
+  "outputs": {
+    "sshCommand": {
+      "type": "string",
+      "value": "[concat('ssh ', parameters('adminUsername'), '@', reference('publicIp').dnsSettings.fqdn)]"
+    }
+  }
 }

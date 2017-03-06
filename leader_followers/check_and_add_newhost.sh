@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# Add new host to GridEngine.
+# via cron
 array_check () {
 for i in ${currentlist[@]};do
   if [ "$1" = "$i" ];then

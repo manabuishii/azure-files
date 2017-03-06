@@ -39,3 +39,9 @@ sys	0m0.320s
 ```
 time azure group deployment create -g AZURERESOURCEGROUP18 -n AzurfeRMSamples11 -f /work2/diskraid-ubuntu-custom-vm/azuredeploy.json -e /work2/diskraid-ubuntu-custom-vm/local.parameters.json -v
 ```
+
+# 1 machine just ssh vm for mount many disk machine
+
+```
+time azure group deployment create -g AZURERESOURCEGROUP18 -n AzurfeRMSamples11 -f /work2/vm-sshkey-script/noaccount.json -e /work2/vm-sshkey-script/local.parameters.json -v
+```

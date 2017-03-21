@@ -28,6 +28,12 @@
         "description": "Size of the nodes."
       }
     },
+    "vmSizeNFSServer": {
+      "value": "Standard_D14",
+      "metadata": {
+        "description": "Size of the nodes."
+      }
+    },
     "nodeExecutionCount": {
       "type": "int",
       "defaultValue": 2,
@@ -382,7 +388,7 @@
       ],
       "properties": {
         "hardwareProfile": {
-          "vmSize": "[parameters('vmSize')]"
+          "vmSize": "[parameters('vmSizeNFSServer')]"
         },
         "osProfile": {
           "computerName": "[variables('vmNameNFSServer')]",

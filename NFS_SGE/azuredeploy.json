@@ -29,7 +29,8 @@
       }
     },
     "vmSizeNFSServer": {
-      "value": "Standard_D14",
+      "type": "string",
+      "defaultValue": "Standard_D14",
       "metadata": {
         "description": "Size of the nodes."
       }

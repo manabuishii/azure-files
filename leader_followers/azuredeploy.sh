@@ -8,8 +8,8 @@ create_etc_hosts() {
   ##
   echo $MASTER_IP $MASTER_NAME > /etc/hosts
   echo $MASTER_IP $MASTER_NAME > /tmp/hosts.$$
-  echo 10.0.0.4 nfsserver > /etc/hosts
-  echo 10.0.0.4 nfsserver > /tmp/hosts.$$
+  echo 10.0.0.4 nfsserver >> /etc/hosts
+  echo 10.0.0.4 nfsserver >> /tmp/hosts.$$
   i=0
   while [ $i -lt $NUM_OF_VM ]
   do

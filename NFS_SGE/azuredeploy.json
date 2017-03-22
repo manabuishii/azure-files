@@ -72,6 +72,7 @@
     "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'sasmaster')]",
     "location": "[resourceGroup().location]",
     "dnsName": "[concat('machine-', uniqueString(resourceGroup().id))]",
+    "dnsNameNFSServer": "[concat('machinenfsserver-', uniqueString(resourceGroup().id))]",
     "imagePublisher": "Canonical",
     "imageOffer": "UbuntuServer",
     "nicNameMaster": "sshNIC",
@@ -94,7 +95,9 @@
         "master": "10.0.0.254",
         "nfsserver": "10.0.0.4"
       }
-    },    
+    },
+    "publicIPAddressNameNFSServer": "sshPublicIPNFSServer",
+    "publicIPAddressTypeNFSServer": "Dynamic",
     "publicIPAddressName": "sshPublicIP",
     "publicIPAddressType": "Dynamic",
     "sshKeyPath": "[concat('/home/',parameters('adminUserName'),'/.ssh/authorized_keys')]",
@@ -352,12 +355,24 @@
       ]
     },
     {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2016-09-01",
+      "name": "[variables('publicIPAddressNameNFSServer')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "publicIPAllocationMethod": "[variables('publicIPAddressTypeNFSServer')]",
+        "dnsSettings": {
+          "domainNameLabel": "[variables('dnsNameNFSServer')]"
+        }
+      }
+    },
+    {
       "apiVersion": "2015-06-15",
       "type": "Microsoft.Network/networkInterfaces",
       "name": "nic",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[variables('publicIPAddressName')]",
+        "[variables('publicIPAddressNameNFSServer')]",
         "[variables('networkSettings').virtualNetworkName]"
       ],
       "properties": {
@@ -368,7 +383,7 @@
               "privateIPAllocationMethod": "Static",
               "privateIPAddress": "[variables('networkSettings').statics.nfsserver]",
               "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressNameNFSServer'))]"
               },
               "subnet": {
                 "id": "[variables('subnetRef')]"

@@ -69,13 +69,23 @@
         "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated."
       },
       "defaultValue": ""
+    },
+    "ubuntuOSVersion": {
+      "type": "string",
+      "defaultValue": "14.04.4-LTS",
+      "allowedValues": [
+        "14.04.4-LTS",
+        "16.04.0-LTS"
+      ],
+      "metadata": {
+        "description": "The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version."
+      }
     }
   },
   "variables": {
     "vmNameMaster": "master",
     "vmNameExecution": "exec-",
     "vmNameNFSServer": "nfsserver",
-    "ubuntuOSVersion": "14.04.4-LTS",
     "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'sasmaster')]",
     "location": "[resourceGroup().location]",
     "dnsName": "[concat('machine-', uniqueString(resourceGroup().id))]",
@@ -224,7 +234,7 @@
           "imageReference": {
             "publisher": "[variables('imagePublisher')]",
             "offer": "[variables('imageOffer')]",
-            "sku": "[variables('ubuntuOSVersion')]",
+            "sku": "[parameters('ubuntuOSVersion')]",
             "version": "latest"
           },
           "osDisk": {
@@ -326,7 +336,7 @@
           "imageReference": {
             "publisher": "[variables('imagePublisher')]",
             "offer": "[variables('imageOffer')]",
-            "sku": "[variables('ubuntuOSVersion')]",
+            "sku": "[parameters('ubuntuOSVersion')]",
             "version": "latest"
           },
           "osDisk": {

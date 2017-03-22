@@ -21,6 +21,13 @@
         "description": "Admin password. Pick a complex password with uppercase letters, lowercase letters, digits, and symbols. The password should not be longer than 16. Otherwise you'll get a BadRequest error."
       }
     },
+    "usertag": {
+      "type": "string",
+      "defaultValue": "test",
+      "metadata": {
+        "description": "User tag for the Virtual Machine environments."
+      }
+    },
     "vmSize": {
       "type": "string",
       "defaultValue": "Standard_D1_v2",
@@ -42,7 +49,7 @@
         "description": "Number of execution nodes in the cluster."
       }
     },
-        "dataDiskSize": {
+    "dataDiskSize": {
       "type": "int",
       "defaultValue": 1000,
       "metadata": {
@@ -96,6 +103,13 @@
         "nfsserver": "10.0.0.4"
       }
     },
+    "tagValues": {
+      "type": "object",
+      "defaultValue": {
+        "User": "[parameters('usertag')]",
+        "Environment": "Production"
+      }
+    },
     "publicIPAddressNameNFSServer": "sshPublicIPNFSServer",
     "publicIPAddressTypeNFSServer": "Dynamic",
     "publicIPAddressName": "sshPublicIP",
@@ -112,6 +126,7 @@
       "apiVersion": "2016-05-01",
       "location": "[resourceGroup().location]",
       "kind": "Storage",
+      "tags": "[variables('tagValues')]",
       "sku": {
         "name": "Standard_LRS"
       }
@@ -121,6 +136,7 @@
       "type": "Microsoft.Network/virtualNetworks",
       "name": "[variables('networkSettings').virtualNetworkName]",
       "location": "[resourceGroup().location]",
+      "tags": "[variables('tagValues')]",
       "properties": {
         "addressSpace": {
           "addressPrefixes": [
@@ -142,6 +158,7 @@
       "apiVersion": "2016-09-01",
       "name": "[variables('publicIPAddressName')]",
       "location": "[variables('location')]",
+      "tags": "[variables('tagValues')]",
       "properties": {
         "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
         "dnsSettings": {
@@ -154,6 +171,7 @@
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[variables('nicNameMaster')]",
       "location": "[resourceGroup().location]",
+      "tags": "[variables('tagValues')]",
       "dependsOn": [
         "[variables('publicIPAddressName')]",
         "[variables('networkSettings').virtualNetworkName]"
@@ -181,6 +199,7 @@
       "type": "Microsoft.Compute/virtualMachines",
       "name": "[variables('vmNameMaster')]",
       "location": "[resourceGroup().location]",
+      "tags": "[variables('tagValues')]",
       "dependsOn": [
         "[variables('storageAccountName')]",
         "[variables('nicNameMaster')]"
@@ -260,6 +279,7 @@
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[concat(variables('nicNameWorker'), copyindex())]",
       "location": "[resourceGroup().location]",
+      "tags": "[variables('tagValues')]",
       "dependsOn": [
         "[variables('networkSettings').virtualNetworkName]"
       ],
@@ -287,6 +307,7 @@
       "type": "Microsoft.Compute/virtualMachines",
       "name": "[concat(variables('vmNameExecution'), copyindex())]",
       "location": "[resourceGroup().location]",
+      "tags": "[variables('tagValues')]",
       "dependsOn": [
         "[variables('storageAccountName')]",
         "nicLoop"
@@ -359,6 +380,7 @@
       "apiVersion": "2016-09-01",
       "name": "[variables('publicIPAddressNameNFSServer')]",
       "location": "[variables('location')]",
+      "tags": "[variables('tagValues')]",
       "properties": {
         "publicIPAllocationMethod": "[variables('publicIPAddressTypeNFSServer')]",
         "dnsSettings": {
@@ -371,6 +393,7 @@
       "type": "Microsoft.Network/networkInterfaces",
       "name": "nic",
       "location": "[resourceGroup().location]",
+      "tags": "[variables('tagValues')]",
       "dependsOn": [
         "[variables('publicIPAddressNameNFSServer')]",
         "[variables('networkSettings').virtualNetworkName]"
@@ -398,6 +421,7 @@
       "type": "Microsoft.Compute/virtualMachines",
       "name": "[variables('vmNameNFSServer')]",
       "location": "[resourceGroup().location]",
+      "tags": "[variables('tagValues')]",
       "dependsOn": [
         "[concat('Microsoft.Network/networkInterfaces/', 'nic')]",
         "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"

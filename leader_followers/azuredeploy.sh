@@ -64,11 +64,14 @@ fi
 # Install ChefDK
 curl -L https://www.opscode.com/chef/install.sh | sudo bash -s -- -P chefdk -v 1.2.20 > /tmp/chef.txt.$$ 2>&1
 
+# Install some files for Chef environments
 sudo apt-get update
 sudo apt-get install -y git curl
 
 chef gem install knife-solo -v 0.6.0
 
+# Install NFS common
+sudo apt-get install -y nfs-common
 
 cd /tmp
 mkdir gridengine
@@ -109,12 +112,12 @@ then
 elif  [ "${ROLE}" = "nfsserver" ];
 then
   echo "EXEC ${ROLE} == \"standalone\" " >> /tmp/out
-  # Setup standalone
+  # Setup RAID disk
   curl  -o /tmp/vm-disk-utils-0.1.sh https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/shared_scripts/ubuntu/vm-disk-utils-0.1.sh
   chmod 755 /tmp/vm-disk-utils-0.1.sh
   bash /tmp/vm-disk-utils-0.1.sh -s
 
-　# do chef
+　# do chef for NFS
   berks vendor cookbooks
   chef-client -j environments/nfsserver.json -z  > /tmp/chef-client.txt.$$ 2>&1
 else

@@ -21,7 +21,7 @@
         "description": "Admin password. Pick a complex password with uppercase letters, lowercase letters, digits, and symbols. The password should not be longer than 16. Otherwise you'll get a BadRequest error."
       }
     },
-    "usertag": {
+    "UserTag": {
       "type": "string",
       "defaultValue": "test",
       "metadata": {
@@ -106,7 +106,7 @@
     "tagValues": {
       "type": "object",
       "defaultValue": {
-        "User": "[parameters('usertag')]",
+        "User": "[parameters('UserTag')]",
         "Environment": "Production"
       }
     },

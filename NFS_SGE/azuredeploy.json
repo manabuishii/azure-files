@@ -104,11 +104,8 @@
       }
     },
     "tagValues": {
-      "type": "object",
-      "defaultValue": {
         "User": "[parameters('UserTag')]",
         "Environment": "Production"
-      }
     },
     "publicIPAddressNameNFSServer": "sshPublicIPNFSServer",
     "publicIPAddressTypeNFSServer": "Dynamic",

@@ -588,6 +588,10 @@
     "sshCommand": {
       "type": "string",
       "value": "[concat('ssh ', parameters('adminUsername'), '@', reference(variables('publicIPAddressName')).dnsSettings.fqdn)]"
+    },
+    "NFSServerSSHCommand": {
+      "type": "string",
+      "value": "[concat('ssh ', parameters('adminUsername'), '@', reference(variables('publicIPAddressNameNFSServer')).dnsSettings.fqdn)]"
     } 
   }
 }

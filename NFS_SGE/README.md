@@ -11,3 +11,11 @@ NfS and SGE environments
 <a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fmanabuishii%2Fazure-files%2Fmaster%2FNFS_SGE%2Fazuredeploy.json" target="_blank">
     <img src="http://armviz.io/visualizebutton.png"/>
 </a>
+
+# Machine size and pricing
+
+You can check the machine size and pricing.
+
+* [Pricing - Linux Virtual Machines | Microsoft Azure](https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux/)
+
+* [料金 - Linux Virtual Machines | Microsoft Azure](https://azure.microsoft.com/ja-jp/pricing/details/virtual-machines/linux/)

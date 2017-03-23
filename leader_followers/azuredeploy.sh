@@ -89,11 +89,19 @@ echo "ROLE=[$ROLE]" > /tmp/out 2>&1
 echo "version 2 test with double quote" >> /tmp/out 2>&1
 test  ${ROLE} == "master"
 echo $? >> /tmp/out
+# Check Ubuntu Version for chef
+UBUNTUVERSION=$(lsb_release -cs)
+SUFFIX=""
+if [ "${UBUNTUVERSION}" = "xenial" ];
+then
+  SUFFIX="16.04."
+fi
+echo ${SUFFIX} >> /tmp/out
 if [ "${ROLE}" = "master" ];
 then
   # Setup maseter
   echo "MASTER ${ROLE} == \"master\" " >> /tmp/out
-  chef-client -j environments/master.json -z   > /tmp/chef-master.txt.$$ 2>&1
+  chef-client -j environments/master.${SUFFIX}json -z   > /tmp/chef-master.txt.$$ 2>&1
   /etc/init.d/gridengine-master stop  >> /tmp/chef-master.txt.$$ 2>&1
   /etc/init.d/gridengine-master start >> /tmp/chef-master.txt.$$ 2>&1
 
@@ -101,7 +109,7 @@ elif [ "${ROLE}" = "exec" ];
 then
   # Setup exec
   echo "EXEC ${ROLE} == \"exec\" " >> /tmp/out
-  chef-client -j environments/exec.json -z  > /tmp/chef-client.txt.$$ 2>&1
+  chef-client -j environments/exec.${SUFFIX}json -z  > /tmp/chef-client.txt.$$ 2>&1
   /etc/init.d/gridengine-exec stop  >> /tmp/chef-client.txt.$$ 2>&1
   /etc/init.d/gridengine-exec start >> /tmp/chef-client.txt.$$ 2>&1
 elif [ "${ROLE}" = "standalone" ];
@@ -111,7 +119,7 @@ then
   echo "EXEC ${ROLE} == \"standalone\" " >> /tmp/out
 elif  [ "${ROLE}" = "nfsserver" ];
 then
-  echo "EXEC ${ROLE} == \"standalone\" " >> /tmp/out
+  echo "EXEC ${ROLE} == \"nfsserver\" " >> /tmp/out
   # Setup RAID disk
   curl  -o /tmp/vm-disk-utils-0.1.sh https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/shared_scripts/ubuntu/vm-disk-utils-0.1.sh
   chmod 755 /tmp/vm-disk-utils-0.1.sh
@@ -119,7 +127,7 @@ then
 
 　# do chef for NFS
   berks vendor cookbooks
-  chef-client -j environments/nfsserver.json -z  > /tmp/chef-client.txt.$$ 2>&1
+  chef-client -j environments/nfsserver.${SUFFIX}json -z  > /tmp/chef-client.txt.$$ 2>&1
 else
   echo "EXEC ${ROLE} == \"other\" " >> /tmp/out
 fi

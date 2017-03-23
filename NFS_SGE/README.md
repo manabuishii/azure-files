@@ -12,6 +12,13 @@ NfS and SGE environments
     <img src="http://armviz.io/visualizebutton.png"/>
 </a>
 
+# 日本語 Azure での、size について
+
+タイトルに Windows となっているが、Windows でなくても、サイズの部分が参考になる
+
+* [Azure での Windows VM のサイズ | Microsoft Docs](https://docs.microsoft.com/ja-jp/azure/virtual-machines/virtual-machines-windows-sizes)
+
+
 # Machine size and pricing
 
 You can check the machine size and pricing.

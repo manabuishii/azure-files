@@ -32,7 +32,14 @@
       "type": "string",
       "defaultValue": "Standard_D1_v2",
       "metadata": {
-        "description": "Size of the nodes."
+        "description": "Size of the execution nodes."
+      }
+    },
+    "vmSizeLeader": {
+      "type": "string",
+      "defaultValue": "Standard_D1_v2",
+      "metadata": {
+        "description": "Size of the login node."
       }
     },
     "vmSizeNFSServer": {
@@ -213,7 +220,7 @@
       ],
       "properties": {
         "hardwareProfile": {
-          "vmSize": "[parameters('vmSize')]"
+          "vmSize": "[parameters('vmSizeLeader')]"
         },
         "osProfile": {
           "computerName": "[variables('vmNameMaster')]",
@@ -440,7 +447,18 @@
         "osProfile": {
           "computerName": "[variables('vmNameNFSServer')]",
           "adminUsername": "[parameters('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]"
+          "adminPassword": "[parameters('adminPassword')]",
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": "true",
+            "ssh": {
+              "publicKeys": [
+                {
+                  "path": "[variables('sshKeyPath')]",
+                  "keyData": "[parameters('sshKeyData')]"
+                }
+              ]
+            }
+          }
         },
         "storageProfile": {
           "imageReference": {
@@ -594,7 +612,7 @@
     }
 
   ],
-    "outputs": {
+  "outputs": {
     "sshCommand": {
       "type": "string",
       "value": "[concat('ssh ', parameters('adminUsername'), '@', reference(variables('publicIPAddressName')).dnsSettings.fqdn)]"

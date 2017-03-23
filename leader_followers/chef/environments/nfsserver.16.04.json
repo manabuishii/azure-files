@@ -2,7 +2,7 @@
   "tz":"Asia/Tokyo",
   "basicsetup":{
     "docker": {
-      "distribution": "ubuntu-trusty",
+      "distribution": "ubuntu-xenial",
       "version": "1.12.3",
       "members": "azureuser"
     }

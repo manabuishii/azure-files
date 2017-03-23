@@ -1,0 +1,26 @@
+{
+  "gengine": {
+    "role": "master",
+    "host_groups": {
+      "default": {
+        "nodes": []
+      }
+    },
+    "queues": {
+      "default": {
+        "hostlist": "@default"
+      }
+    }
+  },
+  "basicsetup":{
+    "docker": {
+      "distribution": "ubuntu-xenial",
+      "version": "1.12.3",
+      "members": "azureuser"
+    }
+  },
+  "run_list": [
+    "recipe[gengine]", "recipe[basicsetup::docker-install]"
+  ]
+
+}

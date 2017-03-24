@@ -34,6 +34,13 @@
         "description": "Single IP address (i.e. 10.10.10.10), IP subnet (i.e. 192.168.1.0/24), default tag, or * (for all addresses)"
       }
     },
+    "vmNameNFSServer": {
+      "type": "string",
+      "defaultValue": "nfsserver",
+      "metadata": {
+        "description": "Hostname of NFS Server."
+      }
+    },
     "vmSize": {
       "type": "string",
       "defaultValue": "Standard_D1_v2",
@@ -98,7 +105,6 @@
   "variables": {
     "vmNameMaster": "master",
     "vmNameExecution": "exec-",
-    "vmNameNFSServer": "nfsserver",
     "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'sasmaster')]",
     "location": "[resourceGroup().location]",
     "dnsName": "[concat('machine-', uniqueString(resourceGroup().id))]",
@@ -472,7 +478,7 @@
     {
       "apiVersion": "2015-06-15",
       "type": "Microsoft.Compute/virtualMachines",
-      "name": "[variables('vmNameNFSServer')]",
+      "name": "[parameters('vmNameNFSServer')]",
       "location": "[resourceGroup().location]",
       "tags": "[variables('tagValues')]",
       "dependsOn": [
@@ -484,7 +490,7 @@
           "vmSize": "[parameters('vmSizeNFSServer')]"
         },
         "osProfile": {
-          "computerName": "[variables('vmNameNFSServer')]",
+          "computerName": "[parameters('vmNameNFSServer')]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPassword')]",
           "linuxConfiguration": {
@@ -509,7 +515,7 @@
           "osDisk": {
             "name": "osdisk",
             "vhd": {
-              "uri": "[concat('http://', variables('storageAccountName'),'.blob.core.windows.net/vhds/', variables('vmNameNFSServer'), '-osdisk.vhd')]"
+              "uri": "[concat('http://', variables('storageAccountName'),'.blob.core.windows.net/vhds/', parameters('vmNameNFSServer'), '-osdisk.vhd')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"
@@ -520,7 +526,7 @@
               "diskSizeGB": "[parameters('dataDiskSize')]",
               "lun": 0,
               "vhd": {
-                "Uri": "[concat('http://',variables('storageAccountName'),'.blob.core.windows.net/vhds/',variables('vmNameNFSServer'),'dataDisk1' ,'.vhd')]"
+                "Uri": "[concat('http://',variables('storageAccountName'),'.blob.core.windows.net/vhds/',parameters('vmNameNFSServer'),'dataDisk1' ,'.vhd')]"
               },
               "caching": "None",
               "createOption": "Empty"
@@ -530,7 +536,7 @@
               "diskSizeGB": "[parameters('dataDiskSize')]",
               "lun": 1,
               "vhd": {
-                "Uri": "[concat('http://',variables('storageAccountName'),'.blob.core.windows.net/vhds/',variables('vmNameNFSServer') ,'dataDisk2','.vhd')]"
+                "Uri": "[concat('http://',variables('storageAccountName'),'.blob.core.windows.net/vhds/',parameters('vmNameNFSServer') ,'dataDisk2','.vhd')]"
               },
               "caching": "None",
               "createOption": "Empty"
@@ -540,7 +546,7 @@
               "diskSizeGB": "[parameters('dataDiskSize')]",
               "lun": 2,
               "vhd": {
-                "Uri": "[concat('http://',variables('storageAccountName'),'.blob.core.windows.net/vhds/',variables('vmNameNFSServer'),'dataDisk3' ,'.vhd')]"
+                "Uri": "[concat('http://',variables('storageAccountName'),'.blob.core.windows.net/vhds/',parameters('vmNameNFSServer'),'dataDisk3' ,'.vhd')]"
               },
               "caching": "None",
               "createOption": "Empty"
@@ -550,7 +556,7 @@
               "diskSizeGB": "[parameters('dataDiskSize')]",
               "lun": 3,
               "vhd": {
-                "Uri": "[concat('http://',variables('storageAccountName'),'.blob.core.windows.net/vhds/',variables('vmNameNFSServer') ,'dataDisk4','.vhd')]"
+                "Uri": "[concat('http://',variables('storageAccountName'),'.blob.core.windows.net/vhds/',parameters('vmNameNFSServer') ,'dataDisk4','.vhd')]"
               },
               "caching": "None",
               "createOption": "Empty"
@@ -560,7 +566,7 @@
               "diskSizeGB": "[parameters('dataDiskSize')]",
               "lun": 4,
               "vhd": {
-                "Uri": "[concat('http://',variables('storageAccountName'),'.blob.core.windows.net/vhds/',variables('vmNameNFSServer'),'dataDisk5' ,'.vhd')]"
+                "Uri": "[concat('http://',variables('storageAccountName'),'.blob.core.windows.net/vhds/',parameters('vmNameNFSServer'),'dataDisk5' ,'.vhd')]"
               },
               "caching": "None",
               "createOption": "Empty"
@@ -570,7 +576,7 @@
               "diskSizeGB": "[parameters('dataDiskSize')]",
               "lun": 5,
               "vhd": {
-                "Uri": "[concat('http://',variables('storageAccountName'),'.blob.core.windows.net/vhds/',variables('vmNameNFSServer') ,'dataDisk6','.vhd')]"
+                "Uri": "[concat('http://',variables('storageAccountName'),'.blob.core.windows.net/vhds/',parameters('vmNameNFSServer') ,'dataDisk6','.vhd')]"
               },
               "caching": "None",
               "createOption": "Empty"
@@ -580,7 +586,7 @@
               "diskSizeGB": "[parameters('dataDiskSize')]",
               "lun": 6,
               "vhd": {
-                "Uri": "[concat('http://',variables('storageAccountName'),'.blob.core.windows.net/vhds/',variables('vmNameNFSServer'),'dataDisk7' ,'.vhd')]"
+                "Uri": "[concat('http://',variables('storageAccountName'),'.blob.core.windows.net/vhds/',parameters('vmNameNFSServer'),'dataDisk7' ,'.vhd')]"
               },
               "caching": "None",
               "createOption": "Empty"
@@ -590,7 +596,7 @@
               "diskSizeGB": "[parameters('dataDiskSize')]",
               "lun": 7,
               "vhd": {
-                "Uri": "[concat('http://',variables('storageAccountName'),'.blob.core.windows.net/vhds/',variables('vmNameNFSServer') ,'dataDisk8','.vhd')]"
+                "Uri": "[concat('http://',variables('storageAccountName'),'.blob.core.windows.net/vhds/',parameters('vmNameNFSServer') ,'dataDisk8','.vhd')]"
               },
               "caching": "None",
               "createOption": "Empty"
@@ -600,7 +606,7 @@
               "diskSizeGB": "[parameters('dataDiskSize')]",
               "lun": 8,
               "vhd": {
-                "Uri": "[concat('http://',variables('storageAccountName'),'.blob.core.windows.net/vhds/',variables('vmNameNFSServer'),'dataDisk9' ,'.vhd')]"
+                "Uri": "[concat('http://',variables('storageAccountName'),'.blob.core.windows.net/vhds/',parameters('vmNameNFSServer'),'dataDisk9' ,'.vhd')]"
               },
               "caching": "None",
               "createOption": "Empty"
@@ -610,7 +616,7 @@
               "diskSizeGB": "[parameters('dataDiskSize')]",
               "lun": 9,
               "vhd": {
-                "Uri": "[concat('http://',variables('storageAccountName'),'.blob.core.windows.net/vhds/',variables('vmNameNFSServer') ,'dataDisk10','.vhd')]"
+                "Uri": "[concat('http://',variables('storageAccountName'),'.blob.core.windows.net/vhds/',parameters('vmNameNFSServer') ,'dataDisk10','.vhd')]"
               },
               "caching": "None",
               "createOption": "Empty"
@@ -628,11 +634,11 @@
       "resources": [
         {
           "type": "Microsoft.Compute/virtualMachines/extensions",
-          "name": "[concat(variables('vmNameNFSServer'), '/azureVmUtils')]",
+          "name": "[concat(parameters('vmNameNFSServer'), '/azureVmUtils')]",
           "apiVersion": "2015-06-15",
           "location": "[resourceGroup().location]",
           "dependsOn": [
-            "[concat('Microsoft.Compute/virtualMachines/', variables('vmNameNFSServer'))]"
+            "[concat('Microsoft.Compute/virtualMachines/', parameters('vmNameNFSServer'))]"
           ],
           "properties": {
             "publisher": "Microsoft.Azure.Extensions",

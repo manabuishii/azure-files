@@ -52,18 +52,18 @@
         "description": "The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version."
       }
     },
-    "vmSize": {
-      "type": "string",
-      "defaultValue": "Standard_D1_v2",
-      "metadata": {
-        "description": "Size of the execution nodes."
-      }
-    },    
     "storageDiskType": {
       "type": "string",
       "defaultValue": "Standard_LRS",
       "metadata": {
         "description": "Storage Disk Type."
+      }
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D1_v2",
+      "metadata": {
+        "description": "Size of the execution nodes."
       }
     },
     "vmSizeLeader": {

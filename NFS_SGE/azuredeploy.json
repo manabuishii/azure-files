@@ -28,6 +28,12 @@
         "description": "User tag for the Virtual Machine environments."
       }
     },
+    "sourceAddressPrefix": {
+      "type": "string",
+      "metadata":{
+        "description": "Single IP address (i.e. 10.10.10.10), IP subnet (i.e. 192.168.1.0/24), default tag, or * (for all addresses)"
+      }
+    },
     "vmSize": {
       "type": "string",
       "defaultValue": "Standard_D1_v2",
@@ -100,7 +106,8 @@
     "imagePublisher": "Canonical",
     "imageOffer": "UbuntuServer",
     "nicNameMaster": "sshNIC",
-    "nicNameWorker": "nic-execution-",    
+    "nicNameWorker": "nic-execution-",
+    "securityGroupName": "[concat('NFS-',uniquestring(resourceGroup().id))]",
     "networkSettings": {
       "virtualNetworkName": "virtualnetwork",
       "addressPrefix": "10.0.0.0/16",
@@ -134,6 +141,30 @@
     "installationCLIFollower": "[concat('sh azuredeploy.sh ', 'exec',' ', variables('vmNameMaster'),' ', variables('networkSettings').statics.master,' ', variables('vmNameExecution'),' ', variables('networkSettings').statics.workerRange.base,' ', variables('networkSettings').statics.workerRange.start)]"
   },
   "resources": [
+    {
+      "apiVersion": "2015-06-15",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('securityGroupName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "SSH",
+            "properties": {
+              "description": "Allows SSH traffic",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "[parameters('sourceAddressPrefix')]",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    },
     {
       "type": "Microsoft.Storage/storageAccounts",
       "name": "[variables('storageAccountName')]",
@@ -188,7 +219,8 @@
       "tags": "[variables('tagValues')]",
       "dependsOn": [
         "[variables('publicIPAddressName')]",
-        "[variables('networkSettings').virtualNetworkName]"
+        "[variables('networkSettings').virtualNetworkName]",
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('securityGroupName'))]"
       ],
       "properties": {
         "ipConfigurations": [
@@ -205,7 +237,10 @@
               }
             }
           }
-        ]
+        ],
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('securityGroupName'))]"
+        }
       }
     },
     {
@@ -405,12 +440,13 @@
     {
       "apiVersion": "2015-06-15",
       "type": "Microsoft.Network/networkInterfaces",
-      "name": "nic",
+      "name": "nicNFSServer",
       "location": "[resourceGroup().location]",
       "tags": "[variables('tagValues')]",
       "dependsOn": [
         "[variables('publicIPAddressNameNFSServer')]",
-        "[variables('networkSettings').virtualNetworkName]"
+        "[variables('networkSettings').virtualNetworkName]",
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('securityGroupName'))]"
       ],
       "properties": {
         "ipConfigurations": [
@@ -427,7 +463,10 @@
               }
             }
           }
-        ]
+        ],
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('securityGroupName'))]"
+        }
       }
     },
     {
@@ -437,7 +476,7 @@
       "location": "[resourceGroup().location]",
       "tags": "[variables('tagValues')]",
       "dependsOn": [
-        "[concat('Microsoft.Network/networkInterfaces/', 'nic')]",
+        "[concat('Microsoft.Network/networkInterfaces/', 'nicNFSServer')]",
         "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
       ],
       "properties": {
@@ -581,7 +620,7 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces','nic')]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces','nicNFSServer')]"
             }
           ]
         }

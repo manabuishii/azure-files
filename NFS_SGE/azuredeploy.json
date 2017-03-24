@@ -41,6 +41,17 @@
         "description": "Hostname of NFS Server."
       }
     },
+    "ubuntuOSVersion": {
+      "type": "string",
+      "defaultValue": "14.04.4-LTS",
+      "allowedValues": [
+        "14.04.4-LTS",
+        "16.04.0-LTS"
+      ],
+      "metadata": {
+        "description": "The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version."
+      }
+    },
     "vmSize": {
       "type": "string",
       "defaultValue": "Standard_D1_v2",
@@ -89,17 +100,6 @@
         "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated."
       },
       "defaultValue": ""
-    },
-    "ubuntuOSVersion": {
-      "type": "string",
-      "defaultValue": "14.04.4-LTS",
-      "allowedValues": [
-        "14.04.4-LTS",
-        "16.04.0-LTS"
-      ],
-      "metadata": {
-        "description": "The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version."
-      }
     }
   },
   "variables": {

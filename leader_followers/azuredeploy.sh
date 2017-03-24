@@ -8,8 +8,8 @@ create_etc_hosts() {
   ##
   echo $MASTER_IP $MASTER_NAME > /etc/hosts
   echo $MASTER_IP $MASTER_NAME > /tmp/hosts.$$
-  echo 10.0.0.4 nfsserver >> /etc/hosts
-  echo 10.0.0.4 nfsserver >> /tmp/hosts.$$
+  echo $NFS_SERVER_IP $NFS_SERVER_NAME >> /etc/hosts
+  echo $NFS_SERVER_IP $NFS_SERVER_NAME >> /tmp/hosts.$$
   i=0
   while [ $i -lt $NUM_OF_VM ]
   do
@@ -45,8 +45,8 @@ then
     exit 1
   fi
 else
-  if [ "$#" -ne 6 ]; then
-    echo "Usage: $0 master|exec MASTER_NAME MASTER_IP WORKER_NAME WORKER_IP_BASE WORKER_IP_START" >> /tmp/azuredeploy.log.$$
+  if [ "$#" -ne 8 ]; then
+    echo "Usage: $0 master|exec MASTER_NAME MASTER_IP WORKER_NAME WORKER_IP_BASE WORKER_IP_START NFS_SERVER_NAME NFS_SERVER_IP" >> /tmp/azuredeploy.log.$$
     exit 1
   fi
   ## Create /etc/hosts
@@ -56,6 +56,8 @@ else
   WORKER_NAME=$4
   WORKER_IP_BASE=$5
   WORKER_IP_START=$6
+  NFS_SERVER_NAME=$7
+  NFS_SERVER_IP=$8
   NUM_OF_VM=100
   # Create /etc/hosts
   create_etc_hosts

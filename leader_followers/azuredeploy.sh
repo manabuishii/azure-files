@@ -121,9 +121,9 @@ elif  [ "${ROLE}" = "nfsserver" ];
 then
   echo "EXEC ${ROLE} == \"nfsserver\" " >> /tmp/out
   # Setup RAID disk
-  curl  -o /tmp/vm-disk-utils-0.1.sh https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/shared_scripts/ubuntu/vm-disk-utils-0.1.sh
+  curl  -o /tmp/vm-disk-utils-0.1.sh https://raw.githubusercontent.com/manabuishii/azure-quickstart-templates/ubuntuscript1/shared_scripts/ubuntu/vm-disk-utils-0.1.sh
   chmod 755 /tmp/vm-disk-utils-0.1.sh
-  bash /tmp/vm-disk-utils-0.1.sh -s
+  bash /tmp/vm-disk-utils-0.1.sh -s -o defaults
 
 　# do chef for NFS
   berks vendor cookbooks

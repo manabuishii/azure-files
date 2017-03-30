@@ -264,7 +264,8 @@
       "tags": "[variables('tagValues')]",
       "dependsOn": [
         "[variables('storageAccountName')]",
-        "[variables('nicNameMaster')]"
+        "[variables('nicNameMaster')]",
+        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmNameNFSServer'))]"
       ],
       "properties": {
         "hardwareProfile": {
@@ -372,7 +373,8 @@
       "tags": "[variables('tagValues')]",
       "dependsOn": [
         "[variables('storageAccountName')]",
-        "nicLoop"
+        "nicLoop",
+        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmNameNFSServer'))]"
       ],
       "copy": {
         "name": "foo",

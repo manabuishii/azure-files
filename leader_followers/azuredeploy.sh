@@ -4,6 +4,24 @@
 # This script is part of azure deploy ARM template
 # This script assumes the Linux distribution to be Ubuntu (or at least have apt-get support)
 
+create_newuser_on_nfsserver() {
+  SSHDIR=/home/${NEWUSER}/.ssh
+
+  useradd -m ${NEWUSER}
+  mkdir ${SSHDIR}
+  chmod 700 ${SSHDIR}
+  ssh-keygen -t rsa -N ""  -f ${SSHDIR}/id_rsa
+  cat ${SSHDIR}/id_rsa.pub >> ${SSHDIR}/authorized_keys
+  chmod 600 ${SSHDIR}/authorized_keys
+  echo "StrictHostKeyChecking no" >> ${SSHDIR}/config
+  chmod 600 ${SSHDIR}/config
+  chown -R ${NEWUSER}. /home/${NEWUSER}
+}
+
+create_newuser_on_leader_and_follower() {
+  useradd ${NEWUSER}
+}
+
 create_etc_hosts() {
   ##
   echo $MASTER_IP $MASTER_NAME > /etc/hosts
@@ -45,7 +63,7 @@ then
     exit 1
   fi
 else
-  if [ "$#" -ne 8 ]; then
+  if [ "$#" -ne 9 ]; then
     echo "Usage: $0 master|exec MASTER_NAME MASTER_IP WORKER_NAME WORKER_IP_BASE WORKER_IP_START NFS_SERVER_NAME NFS_SERVER_IP" >> /tmp/azuredeploy.log.$$
     exit 1
   fi
@@ -58,6 +76,7 @@ else
   WORKER_IP_START=$6
   NFS_SERVER_NAME=$7
   NFS_SERVER_IP=$8
+  NEWUSER=$9
   NUM_OF_VM=100
   # Create /etc/hosts
   create_etc_hosts
@@ -106,7 +125,8 @@ then
   chef-client -j environments/master.${SUFFIX}json -z   > /tmp/chef-master.txt.$$ 2>&1
   /etc/init.d/gridengine-master stop  >> /tmp/chef-master.txt.$$ 2>&1
   /etc/init.d/gridengine-master start >> /tmp/chef-master.txt.$$ 2>&1
-
+  # create newuser
+  create_newuser_on_leader_and_follower
 elif [ "${ROLE}" = "exec" ];
 then
   # Setup exec
@@ -114,6 +134,8 @@ then
   chef-client -j environments/exec.${SUFFIX}json -z  > /tmp/chef-client.txt.$$ 2>&1
   /etc/init.d/gridengine-exec stop  >> /tmp/chef-client.txt.$$ 2>&1
   /etc/init.d/gridengine-exec start >> /tmp/chef-client.txt.$$ 2>&1
+  # create newuser
+  create_newuser_on_leader_and_follower
 elif [ "${ROLE}" = "standalone" ];
 then
   # Setup standalone
@@ -130,6 +152,8 @@ then
 　# do chef for NFS
   berks vendor cookbooks
   chef-client -j environments/nfsserver.${SUFFIX}json -z  > /tmp/chef-client.txt.$$ 2>&1
+  # create newuser
+  create_newuser_on_nfsserver
 else
   echo "EXEC ${ROLE} == \"other\" " >> /tmp/out
 fi

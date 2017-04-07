@@ -121,6 +121,9 @@ then
   /etc/init.d/gridengine-master start >> /tmp/chef-master.txt.$$ 2>&1
   # create newuser
   create_newuser_on_leader_and_follower
+  # mount home
+  echo "${NFS_SERVER_IP}:/datadisks/disk1/home /home nfs rw 0 2" >> /etc/hosts
+  mount /home
 elif [ "${ROLE}" = "exec" ];
 then
   # Setup exec
@@ -130,6 +133,9 @@ then
   /etc/init.d/gridengine-exec start >> /tmp/chef-client.txt.$$ 2>&1
   # create newuser
   create_newuser_on_leader_and_follower
+  # mount home
+  echo "${NFS_SERVER_IP}:/datadisks/disk1/home /home nfs rw 0 2" >> /etc/hosts
+  mount /home
 elif [ "${ROLE}" = "standalone" ];
 then
   # Setup standalone
@@ -149,6 +155,8 @@ then
   chef-client -j environments/nfsserver.${SUFFIX}json -z  > /tmp/chef-client.txt.$$ 2>&1
   # create newuser
   create_newuser_on_nfsserver > /tmp/create_newuser_on_nfsserver.txt.$$ 2>&1
+  mv /home /datadisks/disk1
+  ln -s /datadisks/disk1/home /home
 else
   echo "EXEC ${ROLE} == \"other\" " >> /tmp/out
 fi

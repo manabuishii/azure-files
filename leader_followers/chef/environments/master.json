@@ -20,7 +20,7 @@
     }
   },
   "run_list": [
-    "recipe[gengine]", "recipe[basicsetup::docker-install]"
+    "recipe[gengine]"
   ]
 
 }

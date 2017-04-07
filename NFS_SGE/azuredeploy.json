@@ -6,19 +6,25 @@
       "type": "string",
       "defaultValue": "azureuser",
       "metadata": {
-        "description": "User name for the Virtual Machine."
+        "description": "Admin user name for the Virtual Machine."
       }
     },
     "sshKeyData": {
       "type": "string",
       "metadata": {
-        "description": "SSH rsa public key file as a string."
+        "description": "Admin SSH rsa public key file as a string."
       }
     },
     "adminPassword": {
       "type": "securestring",
       "metadata": {
         "description": "Admin password. Pick a complex password with uppercase letters, lowercase letters, digits, and symbols. The password should not be longer than 16. Otherwise you'll get a BadRequest error."
+      }
+    },
+    "generalUserName": {
+      "type": "string",
+      "metadata": {
+        "description": "General User name for the Virtual Machine."
       }
     },
     "UserTag": {
@@ -150,8 +156,10 @@
     "publicIPAddressType": "Dynamic",
     "sshKeyPath": "[concat('/home/',parameters('adminUserName'),'/.ssh/authorized_keys')]",
     "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets/', variables('networkSettings').virtualNetworkName, variables('networkSettings').subnet.dse.name)]",
-    "installationCLILeader": "[concat('sh azuredeploy.sh ', 'master',' ', variables('vmNameMaster'),' ', variables('networkSettings').statics.master,' ', variables('vmNameExecution'),' ', variables('networkSettings').statics.workerRange.base,' ', variables('networkSettings').statics.workerRange.start,' ',parameters('vmNameNFSServer'),' ', variables('networkSettings').statics.nfsserver)]",
-    "installationCLIFollower": "[concat('sh azuredeploy.sh ', 'exec',' ', variables('vmNameMaster'),' ', variables('networkSettings').statics.master,' ', variables('vmNameExecution'),' ', variables('networkSettings').statics.workerRange.base,' ', variables('networkSettings').statics.workerRange.start,' ',parameters('vmNameNFSServer'),' ', variables('networkSettings').statics.nfsserver)]"
+    "installationParameter": "[concat(variables('vmNameMaster'),' ', variables('networkSettings').statics.master,' ', variables('vmNameExecution'),' ', variables('networkSettings').statics.workerRange.base,' ', variables('networkSettings').statics.workerRange.start,' ',parameters('vmNameNFSServer'),' ', variables('networkSettings').statics.nfsserver,' ',parameters('generalUserName'),' ',parameters('nodeExecutionCount'))]",
+    "installationCLILeader": "[concat('sh azuredeploy.sh ', 'master',' ', variables('installationParameter'))]",
+    "installationCLIFollower": "[concat('sh azuredeploy.sh ', 'exec',' ', variables('installationParameter'))]",
+    "installationCLINFSServer": "[concat('sh azuredeploy.sh ', 'nfsserver',' ', variables('installationParameter'))]"
   },
   "resources": [
     {
@@ -658,7 +666,7 @@
               "fileUris": [
                 "[concat(parameters('_artifactsLocation'), '/azuredeploy.sh', parameters('_artifactsLocationSasToken'))]"
               ],
-              "commandToExecute": "[concat('sh azuredeploy.sh ', 'nfsserver')]"
+              "commandToExecute": "[variables('installationCLINFSServer')]"
             }
           }
         }

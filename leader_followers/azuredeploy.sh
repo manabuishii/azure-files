@@ -122,7 +122,7 @@ then
   # create newuser
   create_newuser_on_leader_and_follower
   # mount home
-  echo "${NFS_SERVER_IP}:/datadisks/disk1/home /home nfs rw 0 2" >> /etc/hosts
+  echo "${NFS_SERVER_IP}:/datadisks/disk1/home /home nfs rw 0 2" >> /etc/fstab
   mount /home
 elif [ "${ROLE}" = "exec" ];
 then
@@ -134,7 +134,7 @@ then
   # create newuser
   create_newuser_on_leader_and_follower
   # mount home
-  echo "${NFS_SERVER_IP}:/datadisks/disk1/home /home nfs rw 0 2" >> /etc/hosts
+  echo "${NFS_SERVER_IP}:/datadisks/disk1/home /home nfs rw 0 2" >> /etc/fstab
   mount /home
 elif [ "${ROLE}" = "standalone" ];
 then

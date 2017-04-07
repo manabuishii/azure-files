@@ -22,6 +22,19 @@ create_newuser_on_leader_and_follower() {
   useradd ${NEWUSER}
 }
 
+create_hostlist_for_default() {
+  echo "group_name @default" > /tmp/hostlist
+  echo -n "hostlist" >> /tmp/hostlist
+
+  i=0
+  while [ $i -lt ${NUMBER_OF_EXEC} ]
+  do
+    echo -n " exec-${i}" >> /tmp/hostlist
+    i=$((i+1))
+  done
+  echo "" >> /tmp/hostlist
+}
+
 create_etc_hosts() {
   ##
   echo $MASTER_IP $MASTER_NAME > /etc/hosts
@@ -57,8 +70,8 @@ then
     exit 1
   fi
 else
-  if [ "$#" -ne 9 ]; then
-    echo "Usage: $0 master|exec MASTER_NAME MASTER_IP WORKER_NAME WORKER_IP_BASE WORKER_IP_START NFS_SERVER_NAME NFS_SERVER_IP NEWUSER" >> /tmp/azuredeploy.log.$$
+  if [ "$#" -ne 10 ]; then
+    echo "Usage: $0 master|exec MASTER_NAME MASTER_IP WORKER_NAME WORKER_IP_BASE WORKER_IP_START NFS_SERVER_NAME NFS_SERVER_IP NEWUSER NUMBER_OF_EXEC" >> /tmp/azuredeploy.log.$$
     exit 1
   fi
   ## Create /etc/hosts
@@ -71,6 +84,7 @@ else
   NFS_SERVER_NAME=$7
   NFS_SERVER_IP=$8
   NEWUSER=$9
+  NUMBER_OF_EXEC=$10
   NUM_OF_VM=100
   # Create /etc/hosts
   create_etc_hosts
@@ -124,6 +138,9 @@ then
   # mount home
   echo "${NFS_SERVER_IP}:/datadisks/disk1/home /home nfs rw 0 2" >> /etc/fstab
   mount /home
+  # hostlist
+  create_hostlist_for_default
+  qconf -Mhgrp /tmp/hostlist
 elif [ "${ROLE}" = "exec" ];
 then
   # Setup exec

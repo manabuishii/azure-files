@@ -64,7 +64,7 @@ then
   fi
 else
   if [ "$#" -ne 9 ]; then
-    echo "Usage: $0 master|exec MASTER_NAME MASTER_IP WORKER_NAME WORKER_IP_BASE WORKER_IP_START NFS_SERVER_NAME NFS_SERVER_IP" >> /tmp/azuredeploy.log.$$
+    echo "Usage: $0 master|exec MASTER_NAME MASTER_IP WORKER_NAME WORKER_IP_BASE WORKER_IP_START NFS_SERVER_NAME NFS_SERVER_IP NEWUSER" >> /tmp/azuredeploy.log.$$
     exit 1
   fi
   ## Create /etc/hosts
@@ -148,12 +148,13 @@ then
   curl  -o /tmp/vm-disk-utils-0.1.sh https://raw.githubusercontent.com/manabuishii/azure-quickstart-templates/ubuntuscript1/shared_scripts/ubuntu/vm-disk-utils-0.1.sh
   chmod 755 /tmp/vm-disk-utils-0.1.sh
   bash /tmp/vm-disk-utils-0.1.sh -s -o defaults
+  # 
 
 　# do chef for NFS
   berks vendor cookbooks
   chef-client -j environments/nfsserver.${SUFFIX}json -z  > /tmp/chef-client.txt.$$ 2>&1
   # create newuser
-  create_newuser_on_nfsserver
+  create_newuser_on_nfsserver > /tmp/create_newuser_on_nfsserver.txt.$$ 2>&1
 else
   echo "EXEC ${ROLE} == \"other\" " >> /tmp/out
 fi

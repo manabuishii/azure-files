@@ -12,7 +12,7 @@ create_newuser_on_nfsserver() {
   chmod 700 ${SSHDIR}
   ssh-keygen -t rsa -N ""  -f ${SSHDIR}/id_rsa
   cat ${SSHDIR}/id_rsa.pub >> ${SSHDIR}/authorized_keys
-  echo ${GENERAL_USER_SSH_KEY} >> ${SSHDIR}/authorized_keys
+  echo "${GENERAL_USER_SSH_KEY}" >> ${SSHDIR}/authorized_keys
   chmod 600 ${SSHDIR}/authorized_keys
   echo "StrictHostKeyChecking no" >> ${SSHDIR}/config
   chmod 600 ${SSHDIR}/config
@@ -71,8 +71,8 @@ then
     exit 1
   fi
 else
-  if [ "$#" -ne 10 ]; then
-    echo "Usage: $0 master|exec MASTER_NAME MASTER_IP WORKER_NAME WORKER_IP_BASE WORKER_IP_START NFS_SERVER_NAME NFS_SERVER_IP NEWUSER NUMBER_OF_EXEC" >> /tmp/azuredeploy.log.$$
+  if [ "$#" -ne 11 ]; then
+    echo "Usage: $0 master|exec MASTER_NAME MASTER_IP WORKER_NAME WORKER_IP_BASE WORKER_IP_START NFS_SERVER_NAME NFS_SERVER_IP NEWUSER NUMBER_OF_EXEC GENERAL_USER_SSH_KEY" >> /tmp/azuredeploy.log.$$
     exit 1
   fi
   ## Create /etc/hosts

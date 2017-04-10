@@ -27,6 +27,12 @@
         "description": "General User name for the Virtual Machine."
       }
     },
+    "generalUserSSHKeyData": {
+      "type": "string",
+      "metadata": {
+        "description": "General User SSH public key file as a string."
+      }
+    },
     "UserTag": {
       "type": "string",
       "defaultValue": "test",
@@ -150,13 +156,14 @@
         "User": "[parameters('UserTag')]",
         "Environment": "Production"
     },
+    "singleQuote": "'",
     "publicIPAddressNameNFSServer": "sshPublicIPNFSServer",
     "publicIPAddressTypeNFSServer": "Dynamic",
     "publicIPAddressName": "sshPublicIP",
     "publicIPAddressType": "Dynamic",
     "sshKeyPath": "[concat('/home/',parameters('adminUserName'),'/.ssh/authorized_keys')]",
     "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets/', variables('networkSettings').virtualNetworkName, variables('networkSettings').subnet.dse.name)]",
-    "installationParameter": "[concat(variables('vmNameMaster'),' ', variables('networkSettings').statics.master,' ', variables('vmNameExecution'),' ', variables('networkSettings').statics.workerRange.base,' ', variables('networkSettings').statics.workerRange.start,' ',parameters('vmNameNFSServer'),' ', variables('networkSettings').statics.nfsserver,' ',parameters('generalUserName'),' ',parameters('nodeExecutionCount'))]",
+    "installationParameter": "[concat(variables('vmNameMaster'),' ', variables('networkSettings').statics.master,' ', variables('vmNameExecution'),' ', variables('networkSettings').statics.workerRange.base,' ', variables('networkSettings').statics.workerRange.start,' ',parameters('vmNameNFSServer'),' ', variables('networkSettings').statics.nfsserver,' ',parameters('generalUserName'),' ',parameters('nodeExecutionCount'), ' ', variables('singleQuote'),parameters('generalUserSSHKeyData'), variables('singleQuote'))]",
     "installationCLILeader": "[concat('sh azuredeploy.sh ', 'master',' ', variables('installationParameter'))]",
     "installationCLIFollower": "[concat('sh azuredeploy.sh ', 'exec',' ', variables('installationParameter'))]",
     "installationCLINFSServer": "[concat('sh azuredeploy.sh ', 'nfsserver',' ', variables('installationParameter'))]"
@@ -382,7 +389,8 @@
       "dependsOn": [
         "[variables('storageAccountName')]",
         "nicLoop",
-        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmNameNFSServer'))]"
+        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmNameNFSServer'))]",
+        "[concat('Microsoft.Compute/virtualMachines/', variables('vmNameMaster'))]"
       ],
       "copy": {
         "name": "foo",

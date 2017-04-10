@@ -12,6 +12,7 @@ create_newuser_on_nfsserver() {
   chmod 700 ${SSHDIR}
   ssh-keygen -t rsa -N ""  -f ${SSHDIR}/id_rsa
   cat ${SSHDIR}/id_rsa.pub >> ${SSHDIR}/authorized_keys
+  echo ${GENERAL_USER_SSH_KEY} >> ${SSHDIR}/authorized_keys
   chmod 600 ${SSHDIR}/authorized_keys
   echo "StrictHostKeyChecking no" >> ${SSHDIR}/config
   chmod 600 ${SSHDIR}/config
@@ -85,6 +86,7 @@ else
   NFS_SERVER_IP=$8
   NEWUSER=$9
   NUMBER_OF_EXEC=$10
+  GENERAL_USER_SSH_KEY=$11
   NUM_OF_VM=100
   # Create /etc/hosts
   create_etc_hosts

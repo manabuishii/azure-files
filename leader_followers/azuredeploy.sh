@@ -7,7 +7,7 @@
 create_newuser_on_nfsserver() {
   SSHDIR=/home/${NEWUSER}/.ssh
 
-  useradd -m ${NEWUSER}
+  useradd -s /bin/bash -m ${NEWUSER}
   mkdir ${SSHDIR}
   chmod 700 ${SSHDIR}
   ssh-keygen -t rsa -N ""  -f ${SSHDIR}/id_rsa
@@ -20,7 +20,7 @@ create_newuser_on_nfsserver() {
 }
 
 create_newuser_on_leader_and_follower() {
-  useradd ${NEWUSER}
+  useradd -s /bin/bash ${NEWUSER}
 }
 
 create_hostlist_for_default() {

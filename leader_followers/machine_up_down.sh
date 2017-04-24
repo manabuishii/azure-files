@@ -1,5 +1,10 @@
 #!/bin/bash
-LOCKFILE=$HOME/azuremanipulate.lock
+CONTROLDIRECTORY=/usr/local/periodicscript
+LOCKFILE=$CONTROLDIRECTORY/azuremanipulate.lock
+
+VMCONTROLCONTAINER=manabuishii/docker-azure-virtualmachine-management:0.4.0
+RESOURCEGROUP=
+SCRIPTDIRECTORY=$CONTROLDIRECTORY
 
 if [ -f ${LOCKFILE} ]; then
   echo "LOCKED script already running"
@@ -15,7 +20,7 @@ fi
 
 
 WAITJOB=$(qstat -u '*' |tail -n +3 | awk '{print $5}' | grep qw |wc -l)
-STOPPEDMACHINE=$(docker exec manabucli azure vm list TESTCREATEMANABU20  | grep exec | grep stopped |wc -l)
+STOPPEDMACHINE=$(docker run --rm -v $SCRIPTDIRECTORY:/work ${VMCONTROLCONTAINER} python /vmcontrol.py vmlist ${RESOURCEGROUP}  | grep exec | grep -E 'stopped|deallocated' |wc -l)
 
 echo "WAIT=${WAITJOB}"
 echo "STOPPED=${STOPPEDMACHINE}"
@@ -38,12 +43,12 @@ then
     fi
     #
     echo "TRY TO WAKE [${NUMBEROFWAKE}]"
-    MACHINES=$(docker exec manabucli azure vm list TESTCREATEMANABU20  | grep exec | grep stopped | head -n ${NUMBEROFWAKE} | awk '{print $3;}')
+    MACHINES=$(docker run --rm -v $SCRIPTDIRECTORY:/work ${VMCONTROLCONTAINER} python /vmcontrol.py vmlist ${RESOURCEGROUP}  | grep exec | grep -E 'stopped|deallocated' | head -n ${NUMBEROFWAKE} | awk '{print $1;}')
     for MACHINE in ${MACHINES}
     do
       echo "TODO check MACHINE is not empty"
       echo "TRY TO WAKE [${MACHINE}]"
-      docker exec manabucli azure vm start TESTCREATEMANABU20 ${MACHINE}
+      docker run --rm -v $SCRIPTDIRECTORY:/work ${VMCONTROLCONTAINER} python /vmcontrol.py start ${RESOURCEGROUP} ${MACHINE}
     done
   else
     echo  "NO Machine available"
@@ -53,12 +58,13 @@ else
   echo  "NO JOBs wait"
   SOMEJOB=$(qstat -u '*' |tail -n +3 | wc -l)
   if [ ${SOMEJOB} -eq 0 ]; then
-    STOPMACHINES=$(docker exec manabucli azure vm list TESTCREATEMANABU20 | grep running | grep exec\- | awk '{print $3;}')
+    STOPMACHINES=$(docker run --rm -v $SCRIPTDIRECTORY:/work ${VMCONTROLCONTAINER} python /vmcontrol.py vmlist ${RESOURCEGROUP} | grep running | grep exec\- | awk '{print $1;}')
     for STOPMACHINE in ${STOPMACHINES}
     do
       echo "TODO check STOPMACHINE is not empty"
       echo "TRY TO STOP [${STOPMACHINE}]"
-      docker exec manabucli azure vm stop TESTCREATEMANABU20 ${STOPMACHINE}
+      # Deallocate (This is not stop or power-off.)
+      docker run --rm -v $SCRIPTDIRECTORY:/work ${VMCONTROLCONTAINER} python /vmcontrol.py deallocate ${RESOURCEGROUP} ${STOPMACHINE}
     done
   else
     echo "There are some jobs TODO IMPLEMENT THIS"
@@ -66,4 +72,3 @@ else
 fi
 
 rm -f ${LOCKFILE}
-

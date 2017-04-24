@@ -143,6 +143,12 @@ then
   # hostlist
   create_hostlist_for_default
   qconf -Mhgrp /tmp/hostlist
+  # setup script
+  mkdir -p /usr/local/periodicscript
+  curl -o /usr/local/periodicscript/machine_up_down.sh https://raw.githubusercontent.com/manabuishii/azure-files/master/leader_followers/machine_up_down.sh
+  chmod 755 /usr/local/periodicscript/machine_up_down.sh
+  chmod 600 /usr/local/periodicscript
+  chown -R 1000:1000 /usr/local/periodicscript
 elif [ "${ROLE}" = "exec" ];
 then
   # Setup exec

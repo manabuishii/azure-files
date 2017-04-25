@@ -12,7 +12,7 @@
       }
     }
   },
-  "docker-install":{
+  "docker_install":{
     "docker": {
       "distribution": "ubuntu-trusty",
       "version": "1.12.3",

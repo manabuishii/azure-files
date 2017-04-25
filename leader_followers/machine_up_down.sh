@@ -3,7 +3,7 @@ CONTROLDIRECTORY=/usr/local/periodicscript
 LOCKFILE=$CONTROLDIRECTORY/azuremanipulate.lock
 
 VMCONTROLCONTAINER=manabuishii/docker-azure-virtualmachine-management:0.4.0
-RESOURCEGROUP=
+RESOURCEGROUP=$(cat $CONTROLDIRECTORY/RESOURCEGROUP.txt)
 SCRIPTDIRECTORY=$CONTROLDIRECTORY
 
 if [ -f ${LOCKFILE} ]; then

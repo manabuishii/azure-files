@@ -71,8 +71,8 @@ then
     exit 1
   fi
 else
-  if [ "$#" -ne 11 ]; then
-    echo "Usage: $0 master|exec MASTER_NAME MASTER_IP WORKER_NAME WORKER_IP_BASE WORKER_IP_START NFS_SERVER_NAME NFS_SERVER_IP NEWUSER NUMBER_OF_EXEC GENERAL_USER_SSH_KEY" >> /tmp/azuredeploy.log.$$
+  if [ "$#" -ne 15 ]; then
+    echo "Usage: $0 master|exec MASTER_NAME MASTER_IP WORKER_NAME WORKER_IP_BASE WORKER_IP_START NFS_SERVER_NAME NFS_SERVER_IP NEWUSER NUMBER_OF_EXEC GENERAL_USER_SSH_KEY RESOURCEGROUP ACCOUNTNAME ACCOUNTPASSWORD SUBSCRIPTIONID" >> /tmp/azuredeploy.log.$$
     exit 1
   fi
   ## Create /etc/hosts
@@ -87,6 +87,10 @@ else
   NEWUSER=$9
   NUMBER_OF_EXEC=$10
   GENERAL_USER_SSH_KEY=$11
+  RESOURCEGROUP=$12
+  ACCOUNTNAME=$13
+  ACCOUNTPASSWORD=$14
+  SUBSCRIPTIONID=$15
   NUM_OF_VM=100
   # Create /etc/hosts
   create_etc_hosts
@@ -148,6 +152,11 @@ then
   curl -o /usr/local/periodicscript/machine_up_down.sh https://raw.githubusercontent.com/manabuishii/azure-files/master/leader_followers/machine_up_down.sh
   chmod 755 /usr/local/periodicscript/machine_up_down.sh
   chmod 700 /usr/local/periodicscript
+  echo "${RESOURCEGROUP}" > /usr/local/periodicscript/RESOURCEGROUP.txt
+  echo "username: ${ACCOUNTNAME}" > /usr/local/periodicscript/config.yaml
+  echo "password: ${ACCOUNTPASSWORD}" >> /usr/local/periodicscript/config.yaml
+  echo "subscription_id: ${SUBSCRIPTIONID}" >> /usr/local/periodicscript/config.yaml
+  chmod 600 /usr/local/periodicscript/config.yaml
   chown -R 1000:1000 /usr/local/periodicscript
 elif [ "${ROLE}" = "exec" ];
 then

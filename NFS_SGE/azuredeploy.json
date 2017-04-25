@@ -33,6 +33,24 @@
         "description": "General User SSH public key file as a string."
       }
     },
+    "accountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Account name for Azure login."
+      }
+    },
+    "accountPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Account password for Azure login."
+      }
+    },
+    "subscriptionid": {
+      "type": "string",
+      "metadata": {
+        "description": "Subscription ID for Azure account."
+      }
+    },
     "UserTag": {
       "type": "string",
       "defaultValue": "test",
@@ -163,7 +181,7 @@
     "publicIPAddressType": "Dynamic",
     "sshKeyPath": "[concat('/home/',parameters('adminUserName'),'/.ssh/authorized_keys')]",
     "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets/', variables('networkSettings').virtualNetworkName, variables('networkSettings').subnet.dse.name)]",
-    "installationParameter": "[concat(variables('vmNameMaster'),' ', variables('networkSettings').statics.master,' ', variables('vmNameExecution'),' ', variables('networkSettings').statics.workerRange.base,' ', variables('networkSettings').statics.workerRange.start,' ',parameters('vmNameNFSServer'),' ', variables('networkSettings').statics.nfsserver,' ',parameters('generalUserName'),' ',parameters('nodeExecutionCount'), ' ', variables('singleQuote'),parameters('generalUserSSHKeyData'), variables('singleQuote'))]",
+    "installationParameter": "[concat(variables('vmNameMaster'),' ', variables('networkSettings').statics.master,' ', variables('vmNameExecution'),' ', variables('networkSettings').statics.workerRange.base,' ', variables('networkSettings').statics.workerRange.start,' ',parameters('vmNameNFSServer'),' ', variables('networkSettings').statics.nfsserver,' ',parameters('generalUserName'),' ',parameters('nodeExecutionCount'), ' ', variables('singleQuote'),parameters('generalUserSSHKeyData'), variables('singleQuote'), ' ',resourceGroup().name,' ',parameters('accountName'),' ',parameters('accountPassword'),' ',parameters('subscriptionid'))]",
     "installationCLILeader": "[concat('sh azuredeploy.sh ', 'master',' ', variables('installationParameter'))]",
     "installationCLIFollower": "[concat('sh azuredeploy.sh ', 'exec',' ', variables('installationParameter'))]",
     "installationCLINFSServer": "[concat('sh azuredeploy.sh ', 'nfsserver',' ', variables('installationParameter'))]"

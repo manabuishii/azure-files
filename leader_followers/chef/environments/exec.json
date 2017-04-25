@@ -2,14 +2,15 @@
   "gengine":{
     "master": "master"
   },
-  "basicsetup":{
+  "docker-install":{
     "docker": {
       "distribution": "ubuntu-trusty",
       "version": "1.12.3",
-      "members": "azureuser"
+      "members": "azureuser",
+      "images": [{'name':'hello-world','tag':'latest'},{'name':'python','tag':'2.7.13'}]
     }
   },
   "run_list": [
-    "recipe[gengine]", "recipe[basicsetup::docker-install]"
+    "recipe[gengine]", "recipe[docker-install::docker-install]"
   ]
 }

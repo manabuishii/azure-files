@@ -147,7 +147,7 @@ then
   qconf -Mhgrp /tmp/hostlist
   # setup script
   mkdir -p /usr/local/periodicscript
-  curl -o /usr/local/periodicscript/machine_up_down.sh https://raw.githubusercontent.com/manabuishii/azure-files/master/leader_followers/machine_up_down.sh
+  curl -s -o /usr/local/periodicscript/machine_up_down.sh https://raw.githubusercontent.com/manabuishii/azure-files/master/leader_followers/machine_up_down.sh
   chmod 755 /usr/local/periodicscript/machine_up_down.sh
   chmod 700 /usr/local/periodicscript
   echo "${RESOURCEGROUP}" > /usr/local/periodicscript/RESOURCEGROUP.txt
@@ -177,7 +177,7 @@ elif  [ "${ROLE}" = "nfsserver" ];
 then
   echo "EXEC ${ROLE} == \"nfsserver\" " >> /tmp/out
   # Setup RAID disk
-  curl  -o /tmp/vm-disk-utils-0.1.sh https://raw.githubusercontent.com/manabuishii/azure-quickstart-templates/ubuntuscript1/shared_scripts/ubuntu/vm-disk-utils-0.1.sh
+  curl -s -o /tmp/vm-disk-utils-0.1.sh https://raw.githubusercontent.com/manabuishii/azure-quickstart-templates/ubuntuscript1/shared_scripts/ubuntu/vm-disk-utils-0.1.sh
   chmod 755 /tmp/vm-disk-utils-0.1.sh
   bash /tmp/vm-disk-utils-0.1.sh -s -o defaults
   # 

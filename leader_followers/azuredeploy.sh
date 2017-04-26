@@ -17,10 +17,14 @@ create_newuser_on_nfsserver() {
   echo "StrictHostKeyChecking no" >> ${SSHDIR}/config
   chmod 600 ${SSHDIR}/config
   chown -R ${NEWUSER}. /home/${NEWUSER}
+  # add newuser to docker group
+  gpasswd -a $NEWUSER docker
 }
 
 create_newuser_on_leader_and_follower() {
   useradd -s /bin/bash ${NEWUSER}
+  # add newuser to docker group
+  gpasswd -a $NEWUSER docker
 }
 
 create_hostlist_for_default() {

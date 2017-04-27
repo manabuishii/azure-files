@@ -159,6 +159,8 @@ then
   echo "password: ${ACCOUNTPASSWORD}" >> /usr/local/periodicscript/config.yaml
   echo "subscription_id: ${SUBSCRIPTIONID}" >> /usr/local/periodicscript/config.yaml
   chmod 600 /usr/local/periodicscript/config.yaml
+  # for cron job starts 30 minutes later after deploy
+  touch /usr/local/periodicscript/timecheck.txt
   chown -R 1000:1000 /usr/local/periodicscript
 elif [ "${ROLE}" = "exec" ];
 then

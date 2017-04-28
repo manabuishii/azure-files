@@ -75,8 +75,8 @@ then
     exit 1
   fi
 else
-  if [ "$#" -ne 15 ]; then
-    echo "Usage: $0 master|exec MASTER_NAME MASTER_IP WORKER_NAME WORKER_IP_BASE WORKER_IP_START NFS_SERVER_NAME NFS_SERVER_IP NEWUSER NUMBER_OF_EXEC GENERAL_USER_SSH_KEY RESOURCEGROUP ACCOUNTNAME ACCOUNTPASSWORD SUBSCRIPTIONID" >> /tmp/azuredeploy.log.$$
+  if [ "$#" -ne 18 ]; then
+    echo "Usage: $0 master|exec MASTER_NAME MASTER_IP WORKER_NAME WORKER_IP_BASE WORKER_IP_START NFS_SERVER_NAME NFS_SERVER_IP NEWUSER NUMBER_OF_EXEC GENERAL_USER_SSH_KEY RESOURCEGROUP ACCOUNTNAME ACCOUNTPASSWORD SUBSCRIPTIONID MASTER_SCRIPT WORKER_SCRIPT NFSSERVER_SCRIPT" >> /tmp/azuredeploy.log.$$
     exit 1
   fi
   ## Create /etc/hosts
@@ -95,6 +95,9 @@ else
   ACCOUNTNAME=$13
   ACCOUNTPASSWORD=$14
   SUBSCRIPTIONID=$15
+  MASTER_SCRIPT=$16
+  WORKER_SCRIPT=$17
+  NFSSERVER_SCRIPT=$18
   NUM_OF_VM=100
   # Create /etc/hosts
   create_etc_hosts
@@ -162,6 +165,12 @@ then
   # for cron job starts 30 minutes later after deploy
   touch /usr/local/periodicscript/timecheck.txt
   chown -R 1000:1000 /usr/local/periodicscript
+  # script for leader node
+  if [ -n "${MASTER_SCRIPT}" ]; then
+    curl -s -o /usr/local/periodicscript/master_script.sh $MASTER_SCRIPT
+    chmod 755 /usr/local/periodicscript/master_script.sh
+    /usr/local/periodicscript/master_script.sh
+  fi
 elif [ "${ROLE}" = "exec" ];
 then
   # Setup exec
@@ -174,6 +183,15 @@ then
   # mount home
   echo "${NFS_SERVER_IP}:/datadisks/disk1/home /home nfs rw 0 2" >> /etc/fstab
   mount /home
+  # script for leader node
+  if [ -n "${WORKER_SCRIPT}" ]; then
+    # setup script
+    mkdir -p /usr/local/periodicscript
+    chmod 700 /usr/local/periodicscript
+    curl -s -o /usr/local/periodicscript/worker_script.sh $WORKER_SCRIPT
+    chmod 755 /usr/local/periodicscript/worker_script.sh
+    /usr/local/periodicscript/worker_script.sh
+  fi
 elif [ "${ROLE}" = "standalone" ];
 then
   # Setup standalone
@@ -195,6 +213,14 @@ then
   create_newuser_on_nfsserver > /tmp/create_newuser_on_nfsserver.txt.$$ 2>&1
   mv /home /datadisks/disk1
   ln -s /datadisks/disk1/home /home
+  # script for leader node
+  if [ -n "${NFSSERVER_SCRIPT}" ]; then
+    mkdir -p /usr/local/periodicscript
+    chmod 700 /usr/local/periodicscript
+    curl -s -o /usr/local/periodicscript/nfsserver_script.sh $NFSSERVER_SCRIPT
+    chmod 755 /usr/local/periodicscript/nfsserver_script.sh
+    /usr/local/periodicscript/nfsserver_script.sh
+  fi
 else
   echo "EXEC ${ROLE} == \"other\" " >> /tmp/out
 fi

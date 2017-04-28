@@ -158,7 +158,7 @@
         "description": "Script after NFS Server setup."
       },
       "defaultValue": ""
-    },
+    }
   },
   "variables": {
     "vmNameMaster": "master",

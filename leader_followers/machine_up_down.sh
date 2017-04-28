@@ -78,7 +78,19 @@ else
       docker run --rm -v $SCRIPTDIRECTORY:/work ${VMCONTROLCONTAINER} python /vmcontrol.py deallocate ${RESOURCEGROUP} ${STOPMACHINE}
     done
   else
-    echo "There are some jobs TODO IMPLEMENT THIS"
+    STOPMACHINES=$(docker run --rm -v $SCRIPTDIRECTORY:/work ${VMCONTROLCONTAINER} python /vmcontrol.py vmlist ${RESOURCEGROUP} | grep running | grep exec\- | awk '{print $1;}')
+    RUNNINGMACHINES=$(qstat -u '*' | tail -n +3 | awk '{ if ($5 != qw) if ($8 ~ /exec/) print $8 }' | awk -F@ '{print $2}')
+    echo "${STOPMACHINES}" > /tmp/list
+    echo "${RUNNINGMACHINES}" >> /tmp/list
+    MACHINES=$(cat /tmp/list | sort | uniq -u)
+    echo "end"
+    for STOPMACHINE in ${MACHINES}
+    do
+      echo "TRY TO STOP [${STOPMACHINE}]"
+      # Deallocate (This is not stop or power-off.)
+      docker run --rm -v $SCRIPTDIRECTORY:/work ${VMCONTROLCONTAINER} python /vmcontrol.py deallocate ${RESOURCEGROUP} ${STOPMACHINE}
+    done
+
   fi
 fi
 

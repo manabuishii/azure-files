@@ -2,12 +2,15 @@
 CONTROLDIRECTORY=/usr/local/periodicscript
 LOCKFILE=$CONTROLDIRECTORY/azuremanipulate.lock
 
-# Do nothing 30 minutes after create leader instance 
-find $CONTROLDIRECTORY/timecheck.txt -mmin +30 |grep timecheck.txt > /dev/null
-TIMECHECK=$?
-if [ ${TIMECHECK} -ne 0 ]; then
-  # Do not anything
-  exit 0
+# Do nothing 30 minutes after create leader instance
+TIMECHECKFILE=$CONTROLDIRECTORY/timecheck.txt
+if [ -e ${TIMECHECKFILE} ]; then
+  find ${TIMECHECKFILE} -mmin +30 |grep timecheck.txt > /dev/null
+  TIMECHECK=$?
+  if [ ${TIMECHECK} -ne 0 ]; then
+    # Do not anything
+    exit 0
+  fi
 fi
 
 VMCONTROLCONTAINER=manabuishii/docker-azure-virtualmachine-management:0.4.0

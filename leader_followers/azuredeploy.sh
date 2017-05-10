@@ -169,7 +169,7 @@ then
   if [ -n "${MASTER_SCRIPT}" ]; then
     curl -s -o /usr/local/periodicscript/master_script.sh $MASTER_SCRIPT
     chmod 755 /usr/local/periodicscript/master_script.sh
-    /usr/local/periodicscript/master_script.sh
+    /usr/local/periodicscript/master_script.sh ${NEWUSER} ${MASTER_NAME}
   fi
 elif [ "${ROLE}" = "exec" ];
 then

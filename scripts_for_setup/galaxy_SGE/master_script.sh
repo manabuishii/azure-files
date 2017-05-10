@@ -30,4 +30,6 @@ cd ..
 # export directory
 mkdir -p export/postgresql/
 chmod 777 -R export
+# chown
+chown ${NEWUSER}. -R /home/${NEWUSER}/work
 

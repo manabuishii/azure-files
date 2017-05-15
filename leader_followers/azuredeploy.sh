@@ -154,6 +154,7 @@ then
   qconf -Mhgrp /tmp/hostlist
   # setup script
   mkdir -p /usr/local/periodicscript
+  mkdir /usr/local/periodicscript/machine
   curl -s -o /usr/local/periodicscript/machine_up_down.sh https://raw.githubusercontent.com/manabuishii/azure-files/master/leader_followers/machine_up_down.sh
   chmod 755 /usr/local/periodicscript/machine_up_down.sh
   chmod 700 /usr/local/periodicscript

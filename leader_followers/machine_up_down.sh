@@ -21,7 +21,7 @@ do
 done
 
 
-VMCONTROLCONTAINER=manabuishii/docker-azure-virtualmachine-management:0.4.0
+VMCONTROLCONTAINER=manabuishii/docker-azure-virtualmachine-management:0.5.0
 RESOURCEGROUP=$(cat $CONTROLDIRECTORY/RESOURCEGROUP.txt)
 SCRIPTDIRECTORY=$CONTROLDIRECTORY
 
@@ -77,7 +77,7 @@ else
   echo  "NO JOBs wait"
   SOMEJOB=$(qstat -u '*' |tail -n +3 | wc -l)
   if [ ${SOMEJOB} -eq 0 ]; then
-    STOPMACHINES=$(docker run --rm -v $SCRIPTDIRECTORY:/work ${VMCONTROLCONTAINER} python /vmcontrol.py vmlist ${RESOURCEGROUP} | grep running | grep exec\- | awk '{print $1;}')
+    STOPMACHINES=$(docker run --rm -v $SCRIPTDIRECTORY:/work ${VMCONTROLCONTAINER} python /vmcontrol.py vmlist ${RESOURCEGROUP} | grep "Provisioning succeeded" | grep running | grep exec\- | awk '{print $1;}')
     for STOPMACHINE in ${STOPMACHINES}
     do
       echo "TODO check STOPMACHINE is not empty"
@@ -91,7 +91,7 @@ else
       fi
     done
   else
-    STOPMACHINES=$(docker run --rm -v $SCRIPTDIRECTORY:/work ${VMCONTROLCONTAINER} python /vmcontrol.py vmlist ${RESOURCEGROUP} | grep running | grep exec\- | awk '{print $1;}')
+    STOPMACHINES=$(docker run --rm -v $SCRIPTDIRECTORY:/work ${VMCONTROLCONTAINER} python /vmcontrol.py vmlist ${RESOURCEGROUP} | grep "Provisioning succeeded" | grep running | grep exec\- | awk '{print $1;}')
     RUNNINGMACHINES=$(qstat -u '*' | tail -n +3 | awk '{ if ($5 != qw) if ($8 ~ /exec/) print $8 }' | awk -F@ '{print $2}')
     echo "${STOPMACHINES}" > /tmp/list
     echo "${RUNNINGMACHINES}" >> /tmp/list

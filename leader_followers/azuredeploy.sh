@@ -108,7 +108,7 @@ sudo apt-get update
 sudo apt-get install -y git curl
 
 # Install ChefDK
-curl -L https://www.opscode.com/chef/install.sh | sudo bash -s -- -P chefdk -v 1.2.20 > /tmp/chef.txt.$$ 2>&1
+curl -s --retry 3 -L https://www.opscode.com/chef/install.sh | sudo bash -s -- -P chefdk -v 1.2.20 > /tmp/chef.txt.$$ 2>&1
 
 chef gem install knife-solo -v 0.6.0
 

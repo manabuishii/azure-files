@@ -1,5 +1,6 @@
 #!/bin/bash
 CONTROLDIRECTORY=/usr/local/periodicscript
+MACHINECONTROLDIRECTORY=/usr/local/periodicscript/machine
 LOCKFILE=$CONTROLDIRECTORY/azuremanipulate.lock
 
 # Do nothing 30 minutes after create leader instance
@@ -12,6 +13,13 @@ if [ -e ${TIMECHECKFILE} ]; then
     exit 0
   fi
 fi
+#
+OLDMACHINELOCKFILES=$( find ${MACHINECONTROLDIRECTORY} -mmin +3 -type f )
+for OLDMACHINELOCKFILE in ${OLDMACHINELOCKFILES}
+do
+  rm ${OLDMACHINELOCKFILE}
+done
+
 
 VMCONTROLCONTAINER=manabuishii/docker-azure-virtualmachine-management:0.4.0
 RESOURCEGROUP=$(cat $CONTROLDIRECTORY/RESOURCEGROUP.txt)
@@ -75,7 +83,12 @@ else
       echo "TODO check STOPMACHINE is not empty"
       echo "TRY TO STOP [${STOPMACHINE}]"
       # Deallocate (This is not stop or power-off.)
-      docker run --rm -v $SCRIPTDIRECTORY:/work ${VMCONTROLCONTAINER} python /vmcontrol.py deallocate ${RESOURCEGROUP} ${STOPMACHINE}
+      if [ -e ${MACHINECONTROLDIRECTORY}/${STOPMACHINE} ];then
+        docker run --rm -v $SCRIPTDIRECTORY:/work ${VMCONTROLCONTAINER} python /vmcontrol.py deallocate ${RESOURCEGROUP} ${STOPMACHINE}
+        rm ${MACHINECONTROLDIRECTORY}/${STOPMACHINE} 
+      else
+        touch ${MACHINECONTROLDIRECTORY}/${STOPMACHINE} 
+      fi
     done
   else
     STOPMACHINES=$(docker run --rm -v $SCRIPTDIRECTORY:/work ${VMCONTROLCONTAINER} python /vmcontrol.py vmlist ${RESOURCEGROUP} | grep running | grep exec\- | awk '{print $1;}')
@@ -88,7 +101,12 @@ else
     do
       echo "TRY TO STOP [${STOPMACHINE}]"
       # Deallocate (This is not stop or power-off.)
-      docker run --rm -v $SCRIPTDIRECTORY:/work ${VMCONTROLCONTAINER} python /vmcontrol.py deallocate ${RESOURCEGROUP} ${STOPMACHINE}
+      if [ -e ${MACHINECONTROLDIRECTORY}/${STOPMACHINE} ];then
+        docker run --rm -v $SCRIPTDIRECTORY:/work ${VMCONTROLCONTAINER} python /vmcontrol.py deallocate ${RESOURCEGROUP} ${STOPMACHINE}
+        rm ${MACHINECONTROLDIRECTORY}/${STOPMACHINE} 
+      else
+        touch ${MACHINECONTROLDIRECTORY}/${STOPMACHINE} 
+      fi
     done
 
   fi

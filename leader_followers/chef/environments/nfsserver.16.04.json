@@ -1,6 +1,6 @@
 {
   "tz":"Asia/Tokyo",
-  "basicsetup":{
+  "docker_install":{
     "docker": {
       "distribution": "ubuntu-xenial",
       "version": "1.12.3",

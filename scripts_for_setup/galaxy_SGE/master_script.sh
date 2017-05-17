@@ -14,6 +14,7 @@ cd /home/${NEWUSER}/work/github/
 git clone https://github.com/manabuishii/docker-galaxy-singleuser.git
 cd docker-galaxy-singleuser
 curl -s -o ./job_conf.xml.sge.docker https://raw.githubusercontent.com/manabuishii/azure-files/master/scripts_for_setup/galaxy_SGE/job_conf.sge.docker
+curl -s -o ./job_conf.xml.local.sge.docker https://raw.githubusercontent.com/manabuishii/azure-files/master/scripts_for_setup/galaxy_SGE/job_conf.local.sge.docker
 echo "${MASTER_NAME}" > act_qmaster
 # Pull Request 2790
 curl -s -o ./2790.diff https://patch-diff.githubusercontent.com/raw/galaxyproject/galaxy/pull/2790.diff

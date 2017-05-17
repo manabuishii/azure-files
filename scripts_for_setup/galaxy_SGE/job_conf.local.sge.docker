@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<job_conf>
+    <plugins workers="8">
+        <plugin id="sge" type="runner" load="galaxy.jobs.runners.drmaa:DRMAAJobRunner">
+            <param id="drmaa_library_path">/usr/lib/gridengine-drmaa/lib/libdrmaa.so.1.0</param>
+        </plugin>
+        <plugin id="local" type="runner" load="galaxy.jobs.runners.local:LocalJobRunner" workers="4"/>
+    </plugins>
+    <handlers>
+        <handler id="main"/>
+    </handlers>
+    <destinations default="cluster">
+        <destination id="cluster" runner="sge">
+            <param id="embed_metadata_in_job">False</param>
+            <param id="docker_enabled">true</param>
+            <param id="docker_sudo">false</param>
+            <param id="docker_cmd">/usr/bin/docker</param>
+            <param id="container">
+                <container type="docker" shell="/bin/bash" resolve_dependencies="true">myoshimura080822/galaxy_in_docker_bitwf:160607</container>
+            </param>
+
+            <!--
+            <param id="docker_default_container_id">myoshimura080822/galaxy_in_docker_bitwf:160607</param>
+-->
+            <!--
+            <param id="docker_volumes">$defaults,/home/manabu/work/docker/originaldata:/data:ro,/home/manabu/work/docker/myoshimura160607_20160809/export:/export</param>
+            -->
+            <param id="docker_volumes">$working_directory:rw,$default_file_path:rw,/home/manabu/work/github/docker-galaxy-singleuser/data:/data:ro,/home/manabu/work/github/docker-galaxy-singleuser/export:/export</param>
+            <param id="nativeSpecification"> -w n </param>
+        </destination>
+        <destination id="local" runner="local">
+            <param id="embed_metadata_in_job">False</param>
+        </destination>
+    </destinations>
+    <limits>
+        <limit type="registered_user_concurrent_jobs">2</limit>
+        <limit type="anonymous_user_concurrent_jobs">2</limit>
+        <limit type="destination_user_concurrent_jobs">2</limit>
+        <limit type="destination_total_concurrent_jobs">2</limit>
+        <limit type="unregistered_user_concurrent_jobs">2</limit>
+    </limits>
+    <tools>
+        <tool id="GetFastQCRawDataFiles" destination="local" />
+        <tool id="GetQuantityCountInfo" destination="local" />
+        <tool id="ImportDataLibraries" destination="local" />
+        <tool id="GetDatasetDatPath" destination="local" />
+        <tool id="GetGalaxywigToBigWigDatasetNames" destination="local" />
+        <!-- -->
+        <tool id="SummaryOfReadQC" destination="local" />
+        <tool id="ConvertAndMergeCountData" destination="local" />
+        <tool id="PcaAndVisualizationInGalaxy" destination="local" />
+        <tool id="CorrAndClusterForLogCountData" destination="local" />
+    </tools>
+
+</job_conf>

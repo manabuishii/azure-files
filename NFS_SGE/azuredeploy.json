@@ -114,7 +114,7 @@
       "type": "string",
       "defaultValue": "Standard_D14",
       "metadata": {
-        "description": "Size of the nodes."
+        "description": "Size of NFS Server."
       }
     },
     "dataDiskSize": {

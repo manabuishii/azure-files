@@ -67,8 +67,10 @@ then
     do
       echo "TODO check MACHINE is not empty"
       echo "TRY TO WAKE [${MACHINE}]"
-      docker run --rm -v $SCRIPTDIRECTORY:/work ${VMCONTROLCONTAINER} python /vmcontrol.py start ${RESOURCEGROUP} ${MACHINE}
+      docker run --rm -v $SCRIPTDIRECTORY:/work ${VMCONTROLCONTAINER} python /vmcontrol.py start ${RESOURCEGROUP} ${MACHINE} &
     done
+    # wait background process (docker)
+    wait
   else
     echo  "NO Machine available"
   fi
@@ -80,16 +82,19 @@ else
     STOPMACHINES=$(docker run --rm -v $SCRIPTDIRECTORY:/work ${VMCONTROLCONTAINER} python /vmcontrol.py vmlist ${RESOURCEGROUP} | grep "Provisioning succeeded" | grep running | grep exec\- | awk '{print $1;}')
     for STOPMACHINE in ${STOPMACHINES}
     do
+      # TODO check no job before deallocate.because deallocate take very very long time.
       echo "TODO check STOPMACHINE is not empty"
       echo "TRY TO STOP [${STOPMACHINE}]"
       # Deallocate (This is not stop or power-off.)
       if [ -e ${MACHINECONTROLDIRECTORY}/${STOPMACHINE} ];then
-        docker run --rm -v $SCRIPTDIRECTORY:/work ${VMCONTROLCONTAINER} python /vmcontrol.py deallocate ${RESOURCEGROUP} ${STOPMACHINE}
+        docker run --rm -v $SCRIPTDIRECTORY:/work ${VMCONTROLCONTAINER} python /vmcontrol.py deallocate ${RESOURCEGROUP} ${STOPMACHINE} &
         rm ${MACHINECONTROLDIRECTORY}/${STOPMACHINE} 
       else
         touch ${MACHINECONTROLDIRECTORY}/${STOPMACHINE} 
       fi
     done
+    # wait background process (docker)
+    wait
   else
     STOPMACHINES=$(docker run --rm -v $SCRIPTDIRECTORY:/work ${VMCONTROLCONTAINER} python /vmcontrol.py vmlist ${RESOURCEGROUP} | grep "Provisioning succeeded" | grep running | grep exec\- | awk '{print $1;}')
     RUNNINGMACHINES=$(qstat -u '*' | tail -n +3 | awk '{ if ($5 != qw) if ($8 ~ /exec/) print $8 }' | awk -F@ '{print $2}')
@@ -99,16 +104,18 @@ else
     echo "end"
     for STOPMACHINE in ${MACHINES}
     do
+      # TODO check no job before deallocate.because deallocate take very very long time.
       echo "TRY TO STOP [${STOPMACHINE}]"
       # Deallocate (This is not stop or power-off.)
       if [ -e ${MACHINECONTROLDIRECTORY}/${STOPMACHINE} ];then
-        docker run --rm -v $SCRIPTDIRECTORY:/work ${VMCONTROLCONTAINER} python /vmcontrol.py deallocate ${RESOURCEGROUP} ${STOPMACHINE}
+        docker run --rm -v $SCRIPTDIRECTORY:/work ${VMCONTROLCONTAINER} python /vmcontrol.py deallocate ${RESOURCEGROUP} ${STOPMACHINE} &
         rm ${MACHINECONTROLDIRECTORY}/${STOPMACHINE} 
       else
         touch ${MACHINECONTROLDIRECTORY}/${STOPMACHINE} 
       fi
     done
-
+    # wait background process (docker)
+    wait
   fi
 fi
 

@@ -13,8 +13,15 @@ mkdir -p /home/${NEWUSER}/work/github/
 cd /home/${NEWUSER}/work/github/
 git clone https://github.com/manabuishii/docker-galaxy-singleuser.git
 cd docker-galaxy-singleuser
+# download sample job_conf.xml
 curl -s -o ./job_conf.xml.sge.docker https://raw.githubusercontent.com/manabuishii/azure-files/master/scripts_for_setup/galaxy_SGE/job_conf.sge.docker
 curl -s -o ./job_conf.xml.local.sge.docker https://raw.githubusercontent.com/manabuishii/azure-files/master/scripts_for_setup/galaxy_SGE/job_conf.local.sge.docker
+cp job_conf.local.sge.docker job_conf.xml.sge
+#
+curl -s -o ./setup_inside_container.sh https://raw.githubusercontent.com/BioDevOps/basicsetup/499d0aafcf62f2a8db998fca35a97445cf9bd1ce/templates/setup_inside_container.sh.erb
+sed -i -e "2 s/<%= @single_user %>/${NEWUSER}/g" ./setup_inside_container.sh
+chmod 755 ./setup_inside_container.sh
+#
 echo "${MASTER_NAME}" > act_qmaster
 # Pull Request 2790
 curl -s -o ./2790.diff https://patch-diff.githubusercontent.com/raw/galaxyproject/galaxy/pull/2790.diff

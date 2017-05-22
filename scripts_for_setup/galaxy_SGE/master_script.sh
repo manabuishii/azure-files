@@ -22,6 +22,9 @@ curl -s -o ./setup_inside_container.sh https://raw.githubusercontent.com/BioDevO
 sed -i -e "2 s/<%= @single_user %>/${NEWUSER}/g" ./setup_inside_container.sh
 chmod 755 ./setup_inside_container.sh
 #
+curl -s -o ./start_bitwf.sh https://raw.githubusercontent.com/manabuishii/azure-files/master/scripts_for_setup/galaxy_SGE/start_bitwf.sh
+chmod 755 ./start_bitwf.sh
+#
 echo "${MASTER_NAME}" > act_qmaster
 # Pull Request 2790
 curl -s -o ./2790.diff https://patch-diff.githubusercontent.com/raw/galaxyproject/galaxy/pull/2790.diff

@@ -21,9 +21,17 @@ cp job_conf.local.sge.docker job_conf.xml.sge
 curl -s -o ./setup_inside_container.sh https://raw.githubusercontent.com/BioDevOps/basicsetup/499d0aafcf62f2a8db998fca35a97445cf9bd1ce/templates/setup_inside_container.sh.erb
 sed -i -e "2 s/<%= @single_user %>/${NEWUSER}/g" ./setup_inside_container.sh
 chmod 755 ./setup_inside_container.sh
-#
+# start script
 curl -s -o ./start_bitwf.sh https://raw.githubusercontent.com/manabuishii/azure-files/master/scripts_for_setup/galaxy_SGE/start_bitwf.sh
 chmod 755 ./start_bitwf.sh
+# start script
+curl -s -o ./stop_bitwf.sh https://raw.githubusercontent.com/BioDevOps/basicsetup/master/templates/stop_bitwf.sh.erb
+chmod 755 ./stop_bitwf.sh
+# /etc/init.d/docker-galaxy
+apt-get install -y sysv-rc-conf
+curl -s -o /etc/init.d/docker-galaxy https://raw.githubusercontent.com/BioDevOps/basicsetup/master/templates/ubuntu1404.docker-galaxy.erb
+chmod 755 /etc/init.d/docker-galaxy
+sysv-rc-conf docker-galaxy on
 #
 echo "${MASTER_NAME}" > act_qmaster
 # Pull Request 2790

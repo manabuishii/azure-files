@@ -30,7 +30,7 @@ chmod 755 ./stop_bitwf.sh
 # /etc/init.d/docker-galaxy
 apt-get install -y sysv-rc-conf
 curl -s -o /etc/init.d/docker-galaxy https://raw.githubusercontent.com/BioDevOps/basicsetup/master/templates/ubuntu1404.docker-galaxy.erb
-sed -e "s@/usr/local/galaxy-bitwf/scripts@cd /home/${NEWUSER}/work/github/docker-galaxy-singleuser ; .@" /etc/init.d/docker-galaxy
+sed -i -e "s@/usr/local/galaxy-bitwf/scripts@cd /home/${NEWUSER}/work/github/docker-galaxy-singleuser ; .@" /etc/init.d/docker-galaxy
 chmod 755 /etc/init.d/docker-galaxy
 sysv-rc-conf docker-galaxy on
 #

@@ -24,6 +24,7 @@ chmod 755 ./setup_inside_container.sh
 # start script
 curl -s -o ./start_bitwf.sh https://raw.githubusercontent.com/manabuishii/azure-files/master/scripts_for_setup/galaxy_SGE/start_bitwf.sh
 chmod 755 ./start_bitwf.sh
+sed -i -e "s/id -u/id -u ${NEWUSER}/g" ./start_bitwf.sh
 # start script
 curl -s -o ./stop_bitwf.sh https://raw.githubusercontent.com/BioDevOps/basicsetup/master/templates/stop_bitwf.sh.erb
 chmod 755 ./stop_bitwf.sh

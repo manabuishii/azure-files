@@ -1,6 +1,12 @@
 # azure-files
-Azure files
+Files for azure
 
+* shellscript (start chef)
+* chef
+
+# TODO
+
+* shellscript just start chef
 
 ## Create Resource group
 

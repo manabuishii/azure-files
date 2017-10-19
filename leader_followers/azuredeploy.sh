@@ -208,7 +208,7 @@ then
   # 
 
 　# do chef for NFS
-  berks vendor cookbooks
+  HOME=/root berks vendor cookbooks
   chef-client -j environments/nfsserver.${SUFFIX}json -z  > /tmp/chef-client.txt.$$ 2>&1
   # create newuser
   create_newuser_on_nfsserver > /tmp/create_newuser_on_nfsserver.txt.$$ 2>&1

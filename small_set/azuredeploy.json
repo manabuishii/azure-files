@@ -1,0 +1,654 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminUserName": {
+      "type": "string",
+      "defaultValue": "azureuser",
+      "metadata": {
+        "description": "Admin user name for the Virtual Machine."
+      }
+    },
+    "sshKeyData": {
+      "type": "string",
+      "metadata": {
+        "description": "Admin SSH rsa public key file as a string."
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Admin password. Pick a complex password with uppercase letters, lowercase letters, digits, and symbols. The password should not be longer than 16. Otherwise you'll get a BadRequest error."
+      }
+    },
+    "generalUserName": {
+      "type": "string",
+      "metadata": {
+        "description": "General User name for the Virtual Machine."
+      }
+    },
+    "generalUserSSHKeyData": {
+      "type": "string",
+      "metadata": {
+        "description": "General User SSH public key file as a string."
+      }
+    },
+    "accountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Account name for Azure login."
+      }
+    },
+    "accountPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Account password for Azure login."
+      }
+    },
+    "subscriptionid": {
+      "type": "string",
+      "metadata": {
+        "description": "Subscription ID for Azure account."
+      }
+    },
+    "UserTag": {
+      "type": "string",
+      "defaultValue": "test",
+      "metadata": {
+        "description": "User tag for the Virtual Machine environments."
+      }
+    },
+    "sourceAddressPrefix": {
+      "type": "string",
+      "metadata":{
+        "description": "Single IP address (i.e. 10.10.10.10), IP subnet (i.e. 192.168.1.0/24), default tag, or * (for all addresses)"
+      }
+    },
+    "vmNameNFSServer": {
+      "type": "string",
+      "defaultValue": "nfsserver",
+      "metadata": {
+        "description": "Hostname of NFS Server."
+      }
+    },
+    "ubuntuOSVersion": {
+      "type": "string",
+      "defaultValue": "14.04.4-LTS",
+      "allowedValues": [
+        "14.04.4-LTS",
+        "16.04.0-LTS"
+      ],
+      "metadata": {
+        "description": "The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version."
+      }
+    },
+    "storageDiskType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "metadata": {
+        "description": "Storage Disk Type."
+      }
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_A1",
+      "metadata": {
+        "description": "Size of the execution nodes."
+      }
+    },
+    "nodeExecutionCount": {
+      "type": "int",
+      "defaultValue": 2,
+      "metadata": {
+        "description": "Number of execution nodes in the cluster."
+      }
+    },
+    "vmSizeLeader": {
+      "type": "string",
+      "defaultValue": "Standard_A1",
+      "metadata": {
+        "description": "Size of the login node."
+      }
+    },
+    "vmSizeNFSServer": {
+      "type": "string",
+      "defaultValue": "Standard_A1",
+      "metadata": {
+        "description": "Size of NFS Server."
+      }
+    },
+    "dataDiskSize": {
+      "type": "int",
+      "defaultValue": 60,
+      "metadata": {
+        "description": "Size of each data disk attached to data nodes in (Gb). Currently we attach 10 disks"
+      }
+    },
+    "_artifactsLocation": {
+      "type": "string",
+      "metadata": {
+        "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
+      },
+      "defaultValue": "https://raw.githubusercontent.com/manabuishii/azure-files/master/leader_followers"
+    },
+    "_artifactsLocationSasToken": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated."
+      },
+      "defaultValue": ""
+    },
+    "master_script": {
+      "type": "string",
+      "metadata": {
+        "description": "Script after Master node setup."
+      },
+      "defaultValue": ""
+    },
+    "worker_script": {
+      "type": "string",
+      "metadata": {
+        "description": "Script after Exec node setup."
+      },
+      "defaultValue": ""
+    },
+    "nfsserver_script": {
+      "type": "string",
+      "metadata": {
+        "description": "Script after NFS Server setup."
+      },
+      "defaultValue": ""
+    }
+  },
+  "variables": {
+    "vmNameMaster": "master",
+    "vmNameExecution": "exec-",
+    "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'sasmaster')]",
+    "location": "[resourceGroup().location]",
+    "dnsName": "[concat('machine-', uniqueString(resourceGroup().id))]",
+    "dnsNameNFSServer": "[concat('machinenfsserver-', uniqueString(resourceGroup().id))]",
+    "imagePublisher": "Canonical",
+    "imageOffer": "UbuntuServer",
+    "nicNameMaster": "sshNIC",
+    "nicNameWorker": "nic-execution-",
+    "securityGroupName": "[concat('NFS-',uniquestring(resourceGroup().id))]",
+    "networkSettings": {
+      "virtualNetworkName": "virtualnetwork",
+      "addressPrefix": "10.0.0.0/16",
+      "subnet": {
+        "dse": {
+          "name": "dse",
+          "prefix": "10.0.0.0/24",
+          "vnet": "virtualnetwork"
+        }
+      },
+      "statics": {
+        "workerRange": {
+          "base": "10.0.0.",
+          "start": 5
+        },
+        "master": "10.0.0.254",
+        "nfsserver": "10.0.0.4"
+      }
+    },
+    "tagValues": {
+        "User": "[parameters('UserTag')]",
+        "Environment": "Production"
+    },
+    "singleQuote": "'",
+    "publicIPAddressNameNFSServer": "sshPublicIPNFSServer",
+    "publicIPAddressTypeNFSServer": "Dynamic",
+    "publicIPAddressName": "sshPublicIP",
+    "publicIPAddressType": "Dynamic",
+    "sshKeyPath": "[concat('/home/',parameters('adminUserName'),'/.ssh/authorized_keys')]",
+    "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets/', variables('networkSettings').virtualNetworkName, variables('networkSettings').subnet.dse.name)]",
+    "installationParameter": "[concat(variables('vmNameMaster'),' ', variables('networkSettings').statics.master,' ', variables('vmNameExecution'),' ', variables('networkSettings').statics.workerRange.base,' ', variables('networkSettings').statics.workerRange.start,' ',parameters('vmNameNFSServer'),' ', variables('networkSettings').statics.nfsserver,' ',parameters('generalUserName'),' ',parameters('nodeExecutionCount'), ' ', variables('singleQuote'),parameters('generalUserSSHKeyData'), variables('singleQuote'), ' ',resourceGroup().name,' ',parameters('accountName'),' ',parameters('accountPassword'),' ',parameters('subscriptionid'), ' ', variables('singleQuote'),parameters('master_script'), variables('singleQuote'), ' ', variables('singleQuote'),parameters('worker_script'), variables('singleQuote'), ' ', variables('singleQuote'),parameters('nfsserver_script'), variables('singleQuote'))]",
+    "installationCLILeader": "[concat('sh azuredeploy.sh ', 'master',' ', variables('installationParameter'))]",
+    "installationCLIFollower": "[concat('sh azuredeploy.sh ', 'exec',' ', variables('installationParameter'))]",
+    "installationCLINFSServer": "[concat('sh azuredeploy.sh ', 'nfsserver',' ', variables('installationParameter'))]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2015-06-15",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('securityGroupName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "SSH",
+            "properties": {
+              "description": "Allows SSH traffic",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "[parameters('sourceAddressPrefix')]",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[variables('storageAccountName')]",
+      "apiVersion": "2016-05-01",
+      "location": "[resourceGroup().location]",
+      "kind": "Storage",
+      "tags": "[variables('tagValues')]",
+      "sku": {
+        "name": "[parameters('storageDiskType')]"
+      }
+    },
+    {
+      "apiVersion": "2016-09-01",
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[variables('networkSettings').virtualNetworkName]",
+      "location": "[resourceGroup().location]",
+      "tags": "[variables('tagValues')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('networkSettings').addressPrefix]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('networkSettings').subnet.dse.name]",
+            "properties": {
+              "addressPrefix": "[variables('networkSettings').subnet.dse.prefix]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2016-09-01",
+      "name": "[variables('publicIPAddressName')]",
+      "location": "[variables('location')]",
+      "tags": "[variables('tagValues')]",
+      "properties": {
+        "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
+        "dnsSettings": {
+          "domainNameLabel": "[variables('dnsName')]"
+        }
+      }
+    },
+    {
+      "apiVersion": "2016-09-01",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('nicNameMaster')]",
+      "location": "[resourceGroup().location]",
+      "tags": "[variables('tagValues')]",
+      "dependsOn": [
+        "[variables('publicIPAddressName')]",
+        "[variables('networkSettings').virtualNetworkName]",
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('securityGroupName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Static",
+              "privateIPAddress": "[variables('networkSettings').statics.master]",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]"
+              },
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              }
+            }
+          }
+        ],
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('securityGroupName'))]"
+        }
+      }
+    },
+    {
+      "apiVersion": "2016-03-30",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[variables('vmNameMaster')]",
+      "location": "[resourceGroup().location]",
+      "tags": "[variables('tagValues')]",
+      "dependsOn": [
+        "[variables('storageAccountName')]",
+        "[variables('nicNameMaster')]",
+        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmNameNFSServer'))]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSizeLeader')]"
+        },
+        "osProfile": {
+          "computerName": "[variables('vmNameMaster')]",
+          "adminUsername": "[parameters('adminUserName')]",
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": "true",
+            "ssh": {
+              "publicKeys": [
+                {
+                  "path": "[variables('sshKeyPath')]",
+                  "keyData": "[parameters('sshKeyData')]"
+                }
+              ]
+            }
+          }
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('imagePublisher')]",
+            "offer": "[variables('imageOffer')]",
+            "sku": "[parameters('ubuntuOSVersion')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "osdisk",
+            "vhd": {
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob, 'vhds/osdisk-', variables('vmNameMaster'), '.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicNameMaster'))]"
+            }
+          ]
+        }
+      },
+      "resources": [
+        {
+          "apiVersion": "2016-03-30",
+          "type": "extensions",
+          "name": "Installation",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[variables('vmNameMaster')]"
+          ],
+          "properties": {
+            "publisher": "Microsoft.Azure.Extensions",
+            "type": "CustomScript",
+            "typeHandlerVersion": "2.0",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "fileUris": [
+                "[concat(parameters('_artifactsLocation'), '/azuredeploy.sh', parameters('_artifactsLocationSasToken'))]"
+              ]
+            },
+            "protectedSettings": {
+              "commandToExecute": "[variables('installationCLILeader')]"
+            }
+          }
+        }
+      ]
+      
+    },
+    {
+      "apiVersion": "2016-09-01",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat(variables('nicNameWorker'), copyindex())]",
+      "location": "[resourceGroup().location]",
+      "tags": "[variables('tagValues')]",
+      "dependsOn": [
+        "[variables('networkSettings').virtualNetworkName]"
+      ],
+      "copy": {
+        "name": "nicLoop",
+        "count": "[parameters('nodeExecutionCount')]"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Static",
+              "privateIPAddress": "[concat(variables('networkSettings').statics.workerRange.base, copyindex(variables('networkSettings').statics.workerRange.start))]",
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              }
+            }
+          }
+        ]
+      }
+    },    
+    {
+      "apiVersion": "2016-03-30",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[concat(variables('vmNameExecution'), copyindex())]",
+      "location": "[resourceGroup().location]",
+      "tags": "[variables('tagValues')]",
+      "dependsOn": [
+        "[variables('storageAccountName')]",
+        "nicLoop",
+        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmNameNFSServer'))]",
+        "[concat('Microsoft.Compute/virtualMachines/', variables('vmNameMaster'))]"
+      ],
+      "copy": {
+        "name": "foo",
+        "count": "[parameters('nodeExecutionCount')]"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[concat(variables('vmNameExecution'), copyindex())]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('imagePublisher')]",
+            "offer": "[variables('imageOffer')]",
+            "sku": "[parameters('ubuntuOSVersion')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "osdisk",
+            "vhd": {
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob, 'vhds/osdisk-', variables('vmNameExecution'), copyIndex(), '.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('nicNameWorker'), copyindex()))]"
+            }
+          ]
+        }
+      },
+      "resources": [
+        {
+          "apiVersion": "2016-03-30",
+          "type": "extensions",
+          "name": "Installation",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat(variables('vmNameExecution'), copyindex())]"
+          ],
+          "properties": {
+            "publisher": "Microsoft.Azure.Extensions",
+            "type": "CustomScript",
+            "typeHandlerVersion": "2.0",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "fileUris": [
+                "[concat(parameters('_artifactsLocation'), '/azuredeploy.sh', parameters('_artifactsLocationSasToken'))]"
+              ]
+            },
+            "protectedSettings": {
+              "commandToExecute": "[variables('installationCLIFollower')]"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2016-09-01",
+      "name": "[variables('publicIPAddressNameNFSServer')]",
+      "location": "[variables('location')]",
+      "tags": "[variables('tagValues')]",
+      "properties": {
+        "publicIPAllocationMethod": "[variables('publicIPAddressTypeNFSServer')]",
+        "dnsSettings": {
+          "domainNameLabel": "[variables('dnsNameNFSServer')]"
+        }
+      }
+    },
+    {
+      "apiVersion": "2015-06-15",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "nicNFSServer",
+      "location": "[resourceGroup().location]",
+      "tags": "[variables('tagValues')]",
+      "dependsOn": [
+        "[variables('publicIPAddressNameNFSServer')]",
+        "[variables('networkSettings').virtualNetworkName]",
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('securityGroupName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Static",
+              "privateIPAddress": "[variables('networkSettings').statics.nfsserver]",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressNameNFSServer'))]"
+              },
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              }
+            }
+          }
+        ],
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('securityGroupName'))]"
+        }
+      }
+    },
+    {
+      "apiVersion": "2015-06-15",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[parameters('vmNameNFSServer')]",
+      "location": "[resourceGroup().location]",
+      "tags": "[variables('tagValues')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', 'nicNFSServer')]",
+        "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSizeNFSServer')]"
+        },
+        "osProfile": {
+          "computerName": "[parameters('vmNameNFSServer')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": "true",
+            "ssh": {
+              "publicKeys": [
+                {
+                  "path": "[variables('sshKeyPath')]",
+                  "keyData": "[parameters('sshKeyData')]"
+                }
+              ]
+            }
+          }
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "Canonical",
+            "offer": "UbuntuServer",
+            "sku": "[parameters('ubuntuOSVersion')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "osdisk",
+            "vhd": {
+              "uri": "[concat('http://', variables('storageAccountName'),'.blob.core.windows.net/vhds/', parameters('vmNameNFSServer'), '-osdisk.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          },
+          "dataDisks": [
+            {
+              "name": "datadisk1",
+              "diskSizeGB": "[parameters('dataDiskSize')]",
+              "lun": 0,
+              "vhd": {
+                "Uri": "[concat('http://',variables('storageAccountName'),'.blob.core.windows.net/vhds/',parameters('vmNameNFSServer'),'dataDisk1' ,'.vhd')]"
+              },
+              "caching": "None",
+              "createOption": "Empty"
+            },
+            {
+              "name": "datadisk2",
+              "diskSizeGB": "[parameters('dataDiskSize')]",
+              "lun": 1,
+              "vhd": {
+                "Uri": "[concat('http://',variables('storageAccountName'),'.blob.core.windows.net/vhds/',parameters('vmNameNFSServer') ,'dataDisk2','.vhd')]"
+              },
+              "caching": "None",
+              "createOption": "Empty"
+            }
+          ]
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces','nicNFSServer')]"
+            }
+          ]
+        }
+      },
+      "resources": [
+        {
+          "type": "Microsoft.Compute/virtualMachines/extensions",
+          "name": "[concat(parameters('vmNameNFSServer'), '/azureVmUtils')]",
+          "apiVersion": "2015-06-15",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Compute/virtualMachines/', parameters('vmNameNFSServer'))]"
+          ],
+          "properties": {
+            "publisher": "Microsoft.Azure.Extensions",
+            "type": "CustomScript",
+            "typeHandlerVersion": "2.0",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "fileUris": [
+                "[concat(parameters('_artifactsLocation'), '/azuredeploy.sh', parameters('_artifactsLocationSasToken'))]"
+              ],
+              "commandToExecute": "[variables('installationCLINFSServer')]"
+            }
+          }
+        }
+      ]
+    }
+
+  ],
+  "outputs": {
+    "sshCommand": {
+      "type": "string",
+      "value": "[concat('ssh ', parameters('adminUsername'), '@', reference(variables('publicIPAddressName')).dnsSettings.fqdn)]"
+    },
+    "NFSServerSSHCommand": {
+      "type": "string",
+      "value": "[concat('ssh ', parameters('adminUsername'), '@', reference(variables('publicIPAddressNameNFSServer')).dnsSettings.fqdn)]"
+    } 
+  }
+}

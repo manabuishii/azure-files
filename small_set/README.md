@@ -27,12 +27,15 @@ docker と、ジョブスケジューラと、使わないリソースを自動�
 ### ウェブで確認する
 
 1. portal サイトの、左がわのメニューから `Resouce Groups` (リソースグループ)をクリックし、
+
 ![Resource Groups](./images/resourcegroups.png "Resource Groups image")
 
 2. Overview をクリック、
+
 ![Overview](./images/overview.png "Overview image")
 
 3. `sshPublicIIP` をクリック
+
 ![Public IP](./images/publicip.png "Public IP image")
 
 

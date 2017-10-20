@@ -14,6 +14,8 @@ docker と、ジョブスケジューラと、使わないリソースを自動�
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 
+# 注意点など
+
 遷移した後、いろいろ入力しますが、
 最後の購入ボタンを押す前に、"Terms and conditions" への同意へのチェックも忘れずに。
 

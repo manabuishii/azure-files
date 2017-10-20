@@ -207,7 +207,7 @@ then
   bash /tmp/vm-disk-utils-0.1.sh -s -o defaults
   # 
 
-　# do chef for NFS
+  # do chef for NFS
   HOME=/root berks vendor cookbooks
   chef-client -j environments/nfsserver.${SUFFIX}json -z  > /tmp/chef-client.txt.$$ 2>&1
   # create newuser

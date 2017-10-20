@@ -3,6 +3,6 @@ cookbook 'apt'
 cookbook 'gengine', github: "manabuishii/gengine-chef-cookbook"
 cookbook 'docker-install', github: "manabuishii/docker-install-cookbook", tag: "0.2.0"
 cookbook 'basicsetup', github: "BioDevOps/basicsetup", branch: "1.3.0-dev"
-cookbook 'nfs', "2.3.1"
+cookbook 'nfs', "2.4.1"
 cookbook 'nfssetup', path: './site-cookbooks/nfssetup'
 cookbook 'vmcontrolsetup', path: './site-cookbooks/vmcontrolsetup'

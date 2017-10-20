@@ -19,6 +19,34 @@ docker と、ジョブスケジューラと、使わないリソースを自動�
 
 ![Terms and conditions](./images/termsandconditions.png "Terms and Conditions image")
 
+
+## デプロイしたマシンのアドレスを調べる
+
+### ウェブで確認する
+
+1. portal サイトの、左がわのメニューから `Resouce Groups` (リソースグループ)をクリックし、
+![Resource Groups](./images/resourcegroups.png "Resource Groups image")
+
+2. Overview をクリック、
+![Overview](./images/overview.png "Overview image")
+
+3. `sshPublicIIP` をクリック
+![Public IP](./images/publicip.png "Public IP image")
+
+
+### コマンドライン
+
+
+azure cli のコマンドラインがつかえるのであれば
+
+```
+azure network public-ip list -g 作成したリソースグループ
+```
+
+で、確認ができます。
+
+
+
 ## ジョブを投入したが、なかなか実行されない。
 
 自動で落とすタイミングとかさなってしまうと、

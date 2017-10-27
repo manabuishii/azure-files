@@ -1,4 +1,8 @@
-# どのように動いているか
+# マシンの起動と停止は、どのように動いているか
+
+スクリプトは、
+
+* [azure-files/machine_up_down.sh at master · manabuishii/azure-files](https://github.com/manabuishii/azure-files/blob/master/leader_followers/machine_up_down.sh)
 
 cron で、3分ごと定期的にチェックしている。
 
